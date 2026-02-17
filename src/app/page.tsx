@@ -1,65 +1,123 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { BarChart3, Code2, Sparkles, ArrowRight, Github } from "lucide-react";
+
+export default function LandingPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (session) {
+      router.push("/dashboard");
+    }
+  }, [session, router]);
+
+  if (status === "loading") {
+    return (
+      <div className="spinner-container">
+        <div className="spinner"></div>
+        <p style={{ color: "var(--text-secondary)" }}>Loading...</p>
+      </div>
+    );
+  }
+
+  if (session) return null; // Will redirect
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      {/* Navbar */}
+      <nav className="navbar">
+        <div className="navbar-logo">
+          <span className="gradient-text">DevMetrics</span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
+        <div className="navbar-links">
+          <a href="#features" className="navbar-link">Features</a>
+          <a href="/auth/signin" className="btn-primary" style={{ padding: "10px 24px", fontSize: "0.9rem" }}>
+            Get Started
           </a>
         </div>
-      </main>
-    </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="hero">
+        {/* Animated Orbs */}
+        <div className="orb orb-1"></div>
+        <div className="orb orb-2"></div>
+        <div className="orb orb-3"></div>
+
+        <h1>
+          See Your Code, <br />
+          <span className="gradient-text">Differently</span>
+        </h1>
+
+        <p>
+          Your GitHub stats in one place. Beautiful charts, clear insights, and
+          a touch of AI to help you grow as a developer.
+        </p>
+
+        <div className="hero-buttons">
+          <a href="/auth/signin" className="btn-primary">
+            <Github size={20} />
+            Get Started with GitHub
+            <ArrowRight size={18} />
+          </a>
+          <a href="#features" className="btn-secondary">
+            Learn More
+          </a>
+        </div>
+      </section>
+
+      <section className="features-section" id="features">
+        <h2>
+          What you'll <span className="gradient-text">get</span>
+        </h2>
+        <p className="subtitle">
+          Simple tools that actually help you understand your coding habits
+        </p>
+
+        <div className="features-grid">
+          <div className="glass-card feature-card">
+            <div className="feature-icon blue">
+              <BarChart3 size={26} />
+            </div>
+            <h3>GitHub Stats</h3>
+            <p>
+              Stars, forks, repos — all your GitHub metrics in one clean dashboard.
+              No spreadsheets, just clarity.
+            </p>
+          </div>
+
+          <div className="glass-card feature-card">
+            <div className="feature-icon purple">
+              <Code2 size={26} />
+            </div>
+            <h3>Language Breakdown</h3>
+            <p>
+              See which languages you use most. Great for updating your résumé
+              or just knowing where you're spending your time.
+            </p>
+          </div>
+
+          <div className="glass-card feature-card">
+            <div className="feature-icon emerald">
+              <Sparkles size={26} />
+            </div>
+            <h3>Quick AI Tips</h3>
+            <p>
+              Get personalized suggestions based on your coding patterns.
+              Think of it as a friendly nudge in the right direction.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="footer">
+        <p>DevMetrics · Made for developers who love data</p>
+      </footer>
+    </>
   );
 }
