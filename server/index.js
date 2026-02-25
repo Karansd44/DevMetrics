@@ -8,7 +8,7 @@ import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import authRouter from './routes/auth.js'
 import githubRouter from './routes/github.js'
-import aiRouter from './routes/ai.js'
+
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const app = express()
@@ -24,7 +24,6 @@ app.use(session({
 
 app.use('/auth', authRouter)
 app.use('/api/github', githubRouter)
-app.use('/api/ai', aiRouter)
 
 if (process.env.NODE_ENV === 'production') {
   const dist = join(__dirname, '../dist')

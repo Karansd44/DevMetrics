@@ -1,10 +1,9 @@
 import { useAuth } from '../context/AuthContext.jsx'
-import { Github, BarChart2, Star, GitCommit, Users, Zap, Lock, TrendingUp } from 'lucide-react'
+import { Github, BarChart2, Star, GitCommit, Users, Lock, TrendingUp } from 'lucide-react'
 
 const FEATURES = [
   { icon: <BarChart2 size={18} />, title: 'Repo Analytics', desc: 'Stars, forks, language breakdown across all your repositories.' },
   { icon: <GitCommit size={18} />, title: 'Commit Activity', desc: 'Visualize your commit streaks and contribution patterns.' },
-  { icon: <Zap size={18} />, title: 'AI Insights', desc: 'GPT-powered career tips based on your coding activity.' },
   { icon: <TrendingUp size={18} />, title: 'Growth Metrics', desc: 'Track followers, stars and repo growth over time.' },
 ]
 
@@ -110,7 +109,7 @@ export default function SignInPage() {
           </span>
         </h1>
         <p className="lp-anim" style={{ color: '#57606a', fontSize: '1rem', lineHeight: 1.7, maxWidth: '420px', marginBottom: '44px', animationDelay: '0.1s' }}>
-          Connect your GitHub account for a live dashboard of contributions, repositories, languages and AI-powered career insights.
+          Connect your GitHub account for a live dashboard of contributions, repositories and languages.
         </p>
 
         {/* Feature cards */}

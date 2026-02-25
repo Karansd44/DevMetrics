@@ -646,17 +646,6 @@ a {
   gap: 3px;
 }
 
-/* ============================================
-   AI Insight Card
-   ============================================ */
-.ai-card {
-  background: linear-gradient(135deg, rgba(191,90,242,0.03) 0%, rgba(148,68,212,0.03) 100%);
-  border-color: rgba(191, 90, 242, 0.12);
-}
-
-.ai-card:hover {
-  border-color: rgba(191, 90, 242, 0.25);
-}
 
 /* ============================================
    Score ring (for quality score)
