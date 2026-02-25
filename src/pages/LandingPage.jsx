@@ -1,30 +1,8 @@
-"use client";
-
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { BarChart3, Code2, Sparkles, ArrowRight, Github } from "lucide-react";
+import { useNavigate } from 'react-router-dom'
+import { BarChart3, Code2, Sparkles, ArrowRight, Github } from 'lucide-react'
 
 export default function LandingPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (session) {
-      router.push("/dashboard");
-    }
-  }, [session, router]);
-
-  if (status === "loading") {
-    return (
-      <div className="spinner-container">
-        <div className="spinner"></div>
-        <p style={{ color: "var(--text-secondary)" }}>Loading...</p>
-      </div>
-    );
-  }
-
-  if (session) return null; // Will redirect
+  const navigate = useNavigate()
 
   return (
     <>
@@ -35,15 +13,18 @@ export default function LandingPage() {
         </div>
         <div className="navbar-links">
           <a href="#features" className="navbar-link">Features</a>
-          <a href="/auth/signin" className="btn-primary" style={{ padding: "10px 24px", fontSize: "0.9rem" }}>
+          <button
+            onClick={() => navigate('/auth/signin')}
+            className="btn-primary"
+            style={{ padding: '10px 24px', fontSize: '0.9rem', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+          >
             Get Started
-          </a>
+          </button>
         </div>
       </nav>
 
       {/* Hero Section */}
       <section className="hero">
-        {/* Animated Orbs */}
         <div className="orb orb-1"></div>
         <div className="orb orb-2"></div>
         <div className="orb orb-3"></div>
@@ -59,11 +40,11 @@ export default function LandingPage() {
         </p>
 
         <div className="hero-buttons">
-          <a href="/auth/signin" className="btn-primary">
+          <button onClick={() => navigate('/auth/signin')} className="btn-primary" style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
             <Github size={20} />
             Get Started with GitHub
             <ArrowRight size={18} />
-          </a>
+          </button>
           <a href="#features" className="btn-secondary">
             Learn More
           </a>
@@ -119,5 +100,5 @@ export default function LandingPage() {
         <p>DevMetrics · Made for developers who love data</p>
       </footer>
     </>
-  );
+  )
 }
