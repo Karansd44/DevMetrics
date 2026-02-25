@@ -60,7 +60,7 @@ export default function LandingPage() {
         </p>
 
         <div className="features-grid">
-          <div className="glass-card feature-card">
+          <div className="card feature-card">
             <div className="feature-icon blue">
               <BarChart3 size={26} />
             </div>
@@ -71,7 +71,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="glass-card feature-card">
+          <div className="card feature-card">
             <div className="feature-icon purple">
               <Code2 size={26} />
             </div>
@@ -82,7 +82,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="glass-card feature-card">
+          <div className="card feature-card">
             <div className="feature-icon emerald">
               <Sparkles size={26} />
             </div>
