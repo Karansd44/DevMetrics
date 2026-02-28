@@ -21,9 +21,10 @@ export default function CollaborationCard({ collab }) {
   return (
     <div className="bento-4 card card-padded">
       <h2 className="section-title" style={{ marginBottom: '16px' }}>Collaboration</h2>
-      <CollabBar label="PR Reviews" value={collab.reviewCount} max={20} color={PURPLE} />
-      <CollabBar label="Review Comments" value={collab.reviewComments} max={30} color="var(--blue)" />
-      <CollabBar label="Issue Comments" value={collab.issueComments} max={40} color="var(--amber)" />
+      <CollabBar label="PRs Authored" value={collab.prsAuthored || 0} max={50} color={PURPLE} />
+      <CollabBar label="PRs Reviewed" value={collab.reviewCount} max={30} color="var(--blue)" />
+      <CollabBar label="Issues Commented" value={collab.issueComments} max={40} color="var(--amber)" />
+      <CollabBar label="Review Comments" value={collab.reviewComments} max={20} color="var(--green)" />
       <div style={{
         marginTop: '16px', padding: '12px', borderRadius: 'var(--radius-sm)',
         background: 'var(--purple-light)', textAlign: 'center',

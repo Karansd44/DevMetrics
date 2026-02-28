@@ -78,7 +78,7 @@ router.get('/stats', async (req, res) => {
       }
     }`
 
-    const [reposRes, events, searchCommits, graphqlRes] = await Promise.all([
+    const [reposRes, events, searchCommits, graphqlRes, prsReviewed, issuesCommented, prsAuthored] = await Promise.all([
       fetch('https://api.github.com/user/repos?per_page=100&sort=updated&visibility=all&affiliation=owner,collaborator,organization_member', { headers }),
       fetch(`https://api.github.com/users/${userData.login}/events?per_page=100`, { headers }).then((r) => r.json()),
       fetch(`https://api.github.com/search/commits?q=author:${userData.login}&sort=author-date&order=desc&per_page=100`, { 
@@ -92,7 +92,22 @@ router.get('/stats', async (req, res) => {
         console.error('[GitHub Stats] GraphQL fetch error:', err.message)
         return null
       }),
+      // Collaboration: PRs the user reviewed (not authored)
+      fetch(`https://api.github.com/search/issues?q=reviewed-by:${userData.login}+is:pr+-author:${userData.login}&per_page=1`, { headers })
+        .then((r) => r.json()).catch(() => ({ total_count: 0 })),
+      // Collaboration: Issues the user commented on
+      fetch(`https://api.github.com/search/issues?q=commenter:${userData.login}+is:issue+-author:${userData.login}&per_page=1`, { headers })
+        .then((r) => r.json()).catch(() => ({ total_count: 0 })),
+      // PRs authored by the user
+      fetch(`https://api.github.com/search/issues?q=author:${userData.login}+is:pr&per_page=1`, { headers })
+        .then((r) => r.json()).catch(() => ({ total_count: 0 })),
     ])
+
+    console.log('[GitHub Stats] Collaboration search results:', {
+      prsReviewed: prsReviewed?.total_count,
+      issuesCommented: issuesCommented?.total_count,
+      prsAuthored: prsAuthored?.total_count,
+    })
 
     // Extract contribution calendar from GraphQL
     let contributionCalendar = null
@@ -284,17 +299,20 @@ router.get('/stats', async (req, res) => {
     const codeRetention = totalAdditions > 0 ? ((netCodeChange / totalAdditions) * 100).toFixed(1) : 100
 
     // 2. Review Activity & Collaboration Depth
-    let prReviewCount = 0, prCommentCount = 0, issueCommentCount = 0
+    // Use GitHub Search API counts (reliable, not limited to 90-day events window)
+    const prReviewCount = prsReviewed?.total_count || 0
+    const issueCommentCount = issuesCommented?.total_count || 0
+    const prAuthoredCount = prsAuthored?.total_count || 0
     
+    // Supplement with review comment count from events (recent activity)
+    let prCommentCount = 0
     if (Array.isArray(events)) {
       events.forEach((event) => {
-        if (event.type === 'PullRequestReviewEvent') prReviewCount++
         if (event.type === 'PullRequestReviewCommentEvent') prCommentCount++
-        if (event.type === 'IssueCommentEvent') issueCommentCount++
       })
     }
 
-    const collaborationScore = prReviewCount + (prCommentCount * 0.5) + (issueCommentCount * 0.3)
+    const collaborationScore = prReviewCount + (prCommentCount * 0.5) + (issueCommentCount * 0.3) + (prAuthoredCount * 0.2)
 
     // 3. Complexity Indicators
     const avgLinesPerCommit = commitCount > 0 ? Math.round((totalAdditions + totalDeletions) / commitCount) : 0
@@ -421,6 +439,7 @@ router.get('/stats', async (req, res) => {
         reviewCount: prReviewCount,
         reviewComments: prCommentCount,
         issueComments: issueCommentCount,
+        prsAuthored: prAuthoredCount,
         score: Math.round(collaborationScore),
       },
       quality: qualityMetrics,

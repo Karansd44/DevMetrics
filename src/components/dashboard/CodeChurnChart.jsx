@@ -2,7 +2,7 @@ import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis,
   CartesianGrid, Tooltip,
 } from 'recharts'
-import { tooltipStyle } from './constants'
+import { tooltipStyle, CHART_COLORS } from './constants'
 
 function MiniStat({ label, value, color }) {
   return (
@@ -38,9 +38,9 @@ export default function CodeChurnChart({ churn }) {
                 <stop offset="100%" stopColor="#FF3B30" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
-            <XAxis dataKey="date" stroke="#9CA3AF" tick={{ fontSize: 10, fill: '#9CA3AF' }} tickLine={false} axisLine={{ stroke: '#E5E7EB' }} />
-            <YAxis stroke="#9CA3AF" tick={{ fontSize: 10, fill: '#9CA3AF' }} axisLine={false} tickLine={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} vertical={false} />
+            <XAxis dataKey="date" stroke={CHART_COLORS.axis} tick={{ fontSize: 10, fill: CHART_COLORS.axis }} tickLine={false} axisLine={{ stroke: CHART_COLORS.axisLine }} />
+            <YAxis stroke={CHART_COLORS.axis} tick={{ fontSize: 10, fill: CHART_COLORS.axis }} axisLine={false} tickLine={false} />
             <Tooltip contentStyle={tooltipStyle} />
             <Area type="monotone" dataKey="additions" stroke="#34C759" strokeWidth={2} fill="url(#addGrad2)" name="Added" dot={false} />
             <Area type="monotone" dataKey="deletions" stroke="#FF3B30" strokeWidth={2} fill="url(#delGrad2)" name="Deleted" dot={false} />

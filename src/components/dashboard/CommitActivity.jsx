@@ -2,7 +2,7 @@ import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis,
   CartesianGrid, Tooltip,
 } from 'recharts'
-import { PURPLE, tooltipStyle } from './constants'
+import { PURPLE, tooltipStyle, CHART_COLORS } from './constants'
 
 export default function CommitActivity({ activityTimeline, churn }) {
   return (
@@ -30,17 +30,17 @@ export default function CommitActivity({ activityTimeline, churn }) {
                 <stop offset="100%" stopColor={PURPLE} stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} vertical={false} />
             <XAxis
               dataKey="date"
-              stroke="#9CA3AF"
-              tick={{ fontSize: 11, fill: '#9CA3AF' }}
-              axisLine={{ stroke: '#E5E7EB' }}
+              stroke={CHART_COLORS.axis}
+              tick={{ fontSize: 11, fill: CHART_COLORS.axis }}
+              axisLine={{ stroke: CHART_COLORS.axisLine }}
               tickLine={false}
             />
             <YAxis
-              stroke="#9CA3AF"
-              tick={{ fontSize: 11, fill: '#9CA3AF' }}
+              stroke={CHART_COLORS.axis}
+              tick={{ fontSize: 11, fill: CHART_COLORS.axis }}
               axisLine={false}
               tickLine={false}
               allowDecimals={false}

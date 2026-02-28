@@ -14,3 +14,9 @@ export const tooltipStyle = {
   fontSize: '0.8rem',
   boxShadow: 'none',
 }
+
+export const CHART_COLORS = {
+  grid: '#F3F4F6',
+  axis: '#9CA3AF',
+  axisLine: '#E5E7EB',
+}

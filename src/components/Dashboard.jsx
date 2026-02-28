@@ -12,6 +12,7 @@ import CommitQuality from './dashboard/CommitQuality.jsx'
 import CollaborationCard from './dashboard/CollaborationCard.jsx'
 import RecentRepos from './dashboard/RecentRepos.jsx'
 import CommitPatterns from './dashboard/CommitPatterns.jsx'
+import ProfileCard from './dashboard/ProfileCard.jsx'
 
 /* ═══════════════════════════════════════════
    Dashboard
@@ -101,7 +102,7 @@ export default function Dashboard() {
         {/* Page Header */}
         <div className="page-header">
           <h1 className="page-title">Dashboard</h1>
-          <p className="page-subtitle">Here's what you've been building</p>
+          <p className="page-subtitle">Your open-source proof of work</p>
         </div>
 
         {/* ═══════ BENTO GRID ═══════ */}
@@ -121,9 +122,10 @@ export default function Dashboard() {
           <CodeChurnChart churn={churn} />
           <CommitQuality quality={quality} />
 
-          {/* Row 5: Collaboration + Recent Repos */}
+          {/* Row 5: Collaboration + Recent Repos + Profile */}
           <CollaborationCard collab={collab} />
           <RecentRepos recentRepos={recentRepos} />
+          <ProfileCard user={user || authUser} stats={stats} totalContributions={totalContributions} langData={langData} quality={quality} collab={collab} churn={churn} />
 
           {/* Row 6: Commit Pattern Breakdown */}
           <CommitPatterns quality={quality} />
