@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import {
   LayoutDashboard, GitFork, BarChart3, Settings,
   LogOut, Activity, Github, Code2, ExternalLink,
+  Shield, Lock, Eye, TrendingUp, Target,
 } from 'lucide-react'
 
 export default function Sidebar({ user, activePage = 'dashboard' }) {
@@ -40,6 +41,13 @@ export default function Sidebar({ user, activePage = 'dashboard' }) {
           Dashboard
         </button>
         <button
+          className="sidebar-link"
+          onClick={() => scrollTo('impact-section')}
+        >
+          <span className="icon"><Target size={18} /></span>
+          Impact Score
+        </button>
+        <button
           className={`sidebar-link ${activePage === 'repos' ? 'active' : ''}`}
           onClick={() => scrollTo('repos-section')}
         >
@@ -52,6 +60,29 @@ export default function Sidebar({ user, activePage = 'dashboard' }) {
         >
           <span className="icon"><BarChart3 size={18} /></span>
           Analytics
+        </button>
+
+        <div className="sidebar-section-label">Insights</div>
+        <button
+          className="sidebar-link"
+          onClick={() => scrollTo('complexity-section')}
+        >
+          <span className="icon"><TrendingUp size={18} /></span>
+          Complexity
+        </button>
+        <button
+          className="sidebar-link"
+          onClick={() => scrollTo('review-section')}
+        >
+          <span className="icon"><Eye size={18} /></span>
+          Review Depth
+        </button>
+        <button
+          className="sidebar-link"
+          onClick={() => scrollTo('private-section')}
+        >
+          <span className="icon"><Lock size={18} /></span>
+          Private Work
         </button>
 
         <div className="sidebar-section-label">Account</div>

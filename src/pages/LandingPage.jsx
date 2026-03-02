@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   BarChart3, Code2, ArrowRight, Github, Globe,
   Zap, Flame, GitBranch, Users, TrendingUp, Activity,
-  Star, GitPullRequest, CheckCircle2
+  Star, GitPullRequest, CheckCircle2, Shield, Lock, Eye, Target,
 } from 'lucide-react'
 
 export default function LandingPage() {
@@ -36,9 +36,9 @@ export default function LandingPage() {
           </h1>
 
           <p className="lw-hero-sub">
-            Deep-dive into your GitHub activity with beautiful, shareable insights.
-            Commit velocity, language proficiency, and contribution heatmaps —
-            all in one place.
+            Go beyond green squares. See code churn, authenticity scoring, 
+            review depth, and private work — real impact metrics that prove
+            what you actually built.
           </p>
 
           <div className="lw-hero-ctas">
@@ -145,18 +145,18 @@ export default function LandingPage() {
         <div className="lw-section-header">
           <h2 className="lw-h2">Every metric that matters</h2>
           <p className="lw-section-sub">
-            Six dimensions of your developer footprint — quantified and exportable.
+            Six dimensions that separate real builders from green-square farmers.
           </p>
         </div>
 
         <div className="lw-metrics-grid">
           {[
-            { icon: <Globe size={20} />, label: 'Global Rank', value: 'Top 5%', desc: 'Percentile among all indexed developers' },
-            { icon: <Zap size={20} />, label: 'Commit Velocity', value: '4.2 / day', desc: 'Average commits per active coding day' },
-            { icon: <Code2 size={20} />, label: 'Languages', value: '8', desc: 'Proficiency breakdown with depth scoring' },
-            { icon: <Flame size={20} />, label: 'Active Streak', value: '365 days', desc: 'Longest consecutive contribution streak' },
-            { icon: <Users size={20} />, label: 'Collaboration', value: '92 / 100', desc: 'PRs reviewed · issues triaged · team impact' },
-            { icon: <Activity size={20} />, label: 'Growth Index', value: 'A+', desc: 'Year-over-year trajectory score' },
+            { icon: <Target size={20} />, label: 'Impact Score', value: '86 / 100', desc: 'Quality-weighted measure of real contribution — not just green squares' },
+            { icon: <Shield size={20} />, label: 'Authenticity', value: 'Verified', desc: 'AI noise detection — prove your work is genuine and thoughtful' },
+            { icon: <Code2 size={20} />, label: 'Code Retention', value: '78%', desc: 'How much of your code stays vs gets deleted — real productivity' },
+            { icon: <Eye size={20} />, label: 'Review Depth', value: '42', desc: 'PRs reviewed · inline comments · issues helped — your mentorship impact' },
+            { icon: <Lock size={20} />, label: 'Private Work', value: '12 repos', desc: 'Professional contributions counted without exposing private code' },
+            { icon: <TrendingUp size={20} />, label: 'Complexity', value: 'High', desc: 'Avg lines per commit over time — solving hard problems, not making typo fixes' },
           ].map((m) => (
             <div key={m.label} className="lw-metric-card">
               <div className="lw-metric-icon">{m.icon}</div>
@@ -171,35 +171,59 @@ export default function LandingPage() {
       {/* ── Features ── */}
       <section className="lw-features" id="features">
         <div className="lw-section-header">
-          <h2 className="lw-h2">Built for developers who value clarity</h2>
+          <h2 className="lw-h2">Built for developers tired of vanity metrics</h2>
           <p className="lw-section-sub">
-            No noise. Just the data you need to understand your open-source impact.
+            No noise. Real impact data that proves what you actually built — not how many squares you colored.
           </p>
         </div>
 
         <div className="lw-features-grid">
           <div className="lw-feature-card">
-            <div className="lw-feature-icon"><BarChart3 size={22} /></div>
-            <h3>Real-Time Analytics</h3>
+            <div className="lw-feature-icon"><Shield size={22} /></div>
+            <h3>Anti-AI Noise Detection</h3>
             <p>
-              Stars, forks, commit frequency, and code churn deployed into
-              one shareable dashboard.
+              Spot fake activity instantly. Our authenticity score separates genuine 
+              problem-solving from 100 tiny, auto-generated commits.
+            </p>
+          </div>
+          <div className="lw-feature-card">
+            <div className="lw-feature-icon"><Target size={22} /></div>
+            <h3>Impact Over Vanity</h3>
+            <p>
+              A 2,000-line refactor matters more than 10 typo fixes. See code
+              churn, retention rates, and complexity trends — real impact metrics.
+            </p>
+          </div>
+          <div className="lw-feature-card">
+            <div className="lw-feature-icon"><Lock size={22} /></div>
+            <h3>Private Work Counts</h3>
+            <p>
+              Your best work happens in private repos. See your total impact 
+              across all repositories without exposing any private code.
+            </p>
+          </div>
+          <div className="lw-feature-card">
+            <div className="lw-feature-icon"><Zap size={22} /></div>
+            <h3>Blazing Fast</h3>
+            <p>
+              Smart caching means your dashboard loads instantly. No more
+              staring at loading spinners — data served in milliseconds.
+            </p>
+          </div>
+          <div className="lw-feature-card">
+            <div className="lw-feature-icon"><Eye size={22} /></div>
+            <h3>Source of Truth</h3>
+            <p>
+              GitHub's contribution graph can be glitchy. DevMetrics connects
+              directly to your account for accurate, verified activity data.
             </p>
           </div>
           <div className="lw-feature-card">
             <div className="lw-feature-icon"><GitBranch size={22} /></div>
-            <h3>Developer DNA</h3>
+            <h3>Review Depth</h3>
             <p>
-              A comprehensive profile of your coding identity — language
-              preferences, peak hours, and contribution patterns.
-            </p>
-          </div>
-          <div className="lw-feature-card">
-            <div className="lw-feature-icon"><TrendingUp size={22} /></div>
-            <h3>Growth Trajectory</h3>
-            <p>
-              Trend analysis showing how your skills and output have evolved.
-              Built for reviews and recruiter outreach.
+              Show how much time you spend helping others — PRs reviewed,
+              issues triaged, and inline feedback that makes teams stronger.
             </p>
           </div>
         </div>

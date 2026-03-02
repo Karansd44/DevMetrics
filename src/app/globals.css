@@ -1,48 +1,62 @@
 /* ============================================
-   DevMetrics Design System — Professional White
-   Hyper-modern, flat, Inter typography
-   Accent: Vibrant Purple #BF5AF2
+   DevMetrics Design System — Enterprise White
+   High-Key UI · Data-to-Ink Ratio Optimized
+   Typography: Inter 400/600 · JetBrains Mono
+   Palette: Slate + Emerald (Monochromatic)
    ============================================ */
 
 :root {
-  --bg-page: #F8F9FA;
+  /* ── Backgrounds ── */
+  --bg-page: #F8FAFC;
   --bg-card: #FFFFFF;
   --bg-sidebar: #FFFFFF;
-  --bg-hover: #F3F4F6;
-  --bg-active: rgba(191, 90, 242, 0.06);
+  --bg-hover: #F1F5F9;
+  --bg-active: rgba(5, 150, 105, 0.05);
 
-  --border: #E5E7EB;
-  --border-hover: #D1D5DB;
-  --border-active: rgba(191, 90, 242, 0.3);
+  /* ── Borders ── */
+  --border: #F1F5F9;
+  --border-hover: #E2E8F0;
+  --border-active: rgba(5, 150, 105, 0.3);
 
-  --text-primary: #111827;
-  --text-secondary: #6B7280;
-  --text-muted: #9CA3AF;
+  /* ── Text ── */
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
   --text-white: #FFFFFF;
 
-  --purple: #BF5AF2;
-  --purple-light: rgba(191, 90, 242, 0.08);
-  --purple-medium: rgba(191, 90, 242, 0.15);
-  --purple-dark: #A63DE8;
-  --purple-gradient: linear-gradient(135deg, #BF5AF2 0%, #9444D4 100%);
+  /* ── Emerald Accent (aliased as --purple for backward compat) ── */
+  --purple: #059669;
+  --purple-light: #ECFDF5;
+  --purple-medium: #D1FAE5;
+  --purple-dark: #047857;
+  --purple-gradient: linear-gradient(135deg, #059669 0%, #047857 100%);
 
-  --green: #34C759;
-  --green-light: rgba(52, 199, 89, 0.08);
-  --red: #FF3B30;
-  --red-light: rgba(255, 59, 48, 0.08);
-  --amber: #FF9500;
-  --amber-light: rgba(255, 149, 0, 0.08);
-  --blue: #007AFF;
-  --blue-light: rgba(0, 122, 255, 0.08);
-  --cyan: #5AC8FA;
+  /* ── Status Colors ── */
+  --green: #059669;
+  --green-light: #ECFDF5;
+  --red: #DC2626;
+  --red-light: #FEF2F2;
+  --amber: #D97706;
+  --amber-light: #FFFBEB;
+  --blue: #2563EB;
+  --blue-light: #EFF6FF;
+  --cyan: #0891B2;
 
-  --mono: "SF Mono", "Fira Code", "Fira Mono", "Cascadia Code", monospace;
+  /* ── Shadows (depth via blur, not color fills) ── */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
 
+  /* ── Typography ── */
+  --mono: "JetBrains Mono", "SF Mono", "Fira Code", "Cascadia Code", monospace;
+
+  /* ── Radius ── */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 20px;
 
+  /* ── Layout ── */
   --sidebar-width: 240px;
 }
 
@@ -108,8 +122,8 @@ a {
   align-items: center;
   gap: 10px;
   padding: 24px 24px 20px;
-  font-size: 1.15rem;
-  font-weight: 800;
+  font-size: 1.1rem;
+  font-weight: 700;
   letter-spacing: -0.03em;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border);
@@ -251,9 +265,9 @@ a {
 }
 
 .page-title {
-  font-size: 1.65rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
   color: var(--text-primary);
 }
 
@@ -270,11 +284,13 @@ a {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  transition: border-color 0.2s ease;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card:hover {
   border-color: var(--border-hover);
+  box-shadow: var(--shadow-md);
 }
 
 .card-padded {
@@ -330,8 +346,8 @@ a {
 }
 
 .metric-card .metric-value {
-  font-size: 1.65rem;
-  font-weight: 800;
+  font-size: 1.5rem;
+  font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--text-primary);
   line-height: 1;
@@ -342,8 +358,8 @@ a {
    Section title
    ============================================ */
 .section-title {
-  font-size: 0.92rem;
-  font-weight: 700;
+  font-size: 0.88rem;
+  font-weight: 600;
   color: var(--text-primary);
   letter-spacing: -0.01em;
 }
@@ -425,11 +441,11 @@ a {
   outline-offset: 1px;
 }
 
-.heatmap-level-0 { background: #EBEDF0; }
-.heatmap-level-1 { background: rgba(191, 90, 242, 0.20); }
-.heatmap-level-2 { background: rgba(191, 90, 242, 0.40); }
-.heatmap-level-3 { background: rgba(191, 90, 242, 0.65); }
-.heatmap-level-4 { background: #BF5AF2; }
+.heatmap-level-0 { background: #F1F5F9; }
+.heatmap-level-1 { background: #D1FAE5; }
+.heatmap-level-2 { background: #6EE7B7; }
+.heatmap-level-3 { background: #34D399; }
+.heatmap-level-4 { background: #059669; }
 
 .heatmap-legend {
   display: flex;
@@ -508,10 +524,10 @@ a {
   font-weight: 600;
 }
 
-.quality-badge.excellent { background: rgba(52, 199, 89, 0.1); color: #059669; }
-.quality-badge.good { background: rgba(0, 122, 255, 0.1); color: #007AFF; }
-.quality-badge.fair { background: rgba(255, 149, 0, 0.1); color: #B45309; }
-.quality-badge.poor { background: rgba(255, 59, 48, 0.1); color: #DC2626; }
+.quality-badge.excellent { background: #ECFDF5; color: #047857; }
+.quality-badge.good { background: #EFF6FF; color: #2563EB; }
+.quality-badge.fair { background: #FFFBEB; color: #B45309; }
+.quality-badge.poor { background: #FEF2F2; color: #DC2626; }
 
 /* ============================================
    Progress bar
@@ -1541,10 +1557,10 @@ a {
 }
 
 .lw-hm-l0 { background: #F1F5F9; }
-.lw-hm-l1 { background: #E0E7FF; }
-.lw-hm-l2 { background: #C7D2FE; }
-.lw-hm-l3 { background: #818CF8; }
-.lw-hm-l4 { background: #4F46E5; }
+.lw-hm-l1 { background: #D1FAE5; }
+.lw-hm-l2 { background: #6EE7B7; }
+.lw-hm-l3 { background: #34D399; }
+.lw-hm-l4 { background: #059669; }
 
 /* Language bars */
 .lw-lang-bars {
@@ -1898,4 +1914,52 @@ a {
 @keyframes skeleton-shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+/* ============================================
+   Impact Score Card — hero-level highlight
+   ============================================ */
+#impact-section {
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.02), rgba(5, 150, 105, 0.04));
+  border-color: rgba(5, 150, 105, 0.12);
+}
+
+#impact-section:hover {
+  border-color: rgba(5, 150, 105, 0.22);
+}
+
+/* ============================================
+   Data Freshness bar — subtle top bar
+   ============================================ */
+.data-freshness-pulse {
+  animation: freshness-pulse 2s ease-in-out infinite;
+}
+
+@keyframes freshness-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ============================================
+   Responsive — new components
+   ============================================ */
+@media (max-width: 1024px) {
+  #impact-section > div:last-child {
+    grid-template-columns: 1fr !important;
+  }
+  
+  #impact-section {
+    text-align: center;
+  }
+  
+  #impact-section > div:last-child {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  #impact-section > div:last-child > div:last-child {
+    grid-template-columns: 1fr !important;
+  }
 }

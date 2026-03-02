@@ -49,7 +49,7 @@ export default function CommitPatterns({ quality }) {
   if (!quality) return null
 
   return (
-    <div className="bento-full card card-padded">
+    <div className="bento-8 card card-padded">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div>
           <h2 className="section-title">Commit Pattern Breakdown</h2>

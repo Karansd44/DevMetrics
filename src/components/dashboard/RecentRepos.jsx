@@ -2,7 +2,7 @@ import { Star, Lock, Code2, ArrowUpRight } from 'lucide-react'
 
 export default function RecentRepos({ recentRepos }) {
   return (
-    <div id="repos-section" className="bento-4 card card-padded">
+    <div id="repos-section" className="bento-3 card card-padded">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
         <h2 className="section-title">Recent Repos</h2>
         <ArrowUpRight size={14} style={{ color: 'var(--text-muted)' }} />

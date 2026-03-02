@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import Sidebar from './Sidebar.jsx'
 import { LANG_COLORS } from './dashboard/constants'
@@ -13,6 +13,14 @@ import CollaborationCard from './dashboard/CollaborationCard.jsx'
 import RecentRepos from './dashboard/RecentRepos.jsx'
 import CommitPatterns from './dashboard/CommitPatterns.jsx'
 import ProfileCard from './dashboard/ProfileCard.jsx'
+import ImpactScore from './dashboard/ImpactScore.jsx'
+import AuthenticityScore from './dashboard/AuthenticityScore.jsx'
+import PrivateContributions from './dashboard/PrivateContributions.jsx'
+import DataFreshness from './dashboard/DataFreshness.jsx'
+import ReviewDepth from './dashboard/ReviewDepth.jsx'
+import ComplexityTrends from './dashboard/ComplexityTrends.jsx'
+
+import { DashboardSkeleton } from './SkeletonLoaders.jsx'
 
 /* ═══════════════════════════════════════════
    Dashboard
@@ -26,12 +34,13 @@ export default function Dashboard() {
   const [eventTypes, setEventTypes] = useState([])
   const [impactMetrics, setImpactMetrics] = useState(null)
   const [contributionCalendar, setContributionCalendar] = useState(null)
+  const [cacheInfo, setCacheInfo] = useState(null)
 
-  useEffect(() => {
-    fetch(`/api/github/stats?nocache=1&t=${Date.now()}`, {
-      credentials: 'include',
-      cache: 'no-store',
-    })
+  const fetchData = useCallback((forceRefresh = false) => {
+    const url = forceRefresh
+      ? `/api/github/stats?nocache=1&t=${Date.now()}`
+      : `/api/github/stats?t=${Date.now()}`
+    fetch(url, { credentials: 'include', cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
         setStats(data.stats)
@@ -41,9 +50,14 @@ export default function Dashboard() {
         setEventTypes(data.eventTypes || [])
         setImpactMetrics(data.impactMetrics || null)
         setContributionCalendar(data.contributionCalendar || null)
+        setCacheInfo(data._cache || null)
       })
       .catch(() => {})
   }, [])
+
+  useEffect(() => {
+    fetchData(true) // First load always fetches fresh
+  }, [fetchData])
 
   /* Heatmap data from real GitHub contribution calendar */
   const heatmapWeeks = useMemo(() => {
@@ -79,15 +93,22 @@ export default function Dashboard() {
   const quality = impactMetrics?.quality
   const churn = impactMetrics?.codeChurn
   const collab = impactMetrics?.collaboration
+  const authenticity = impactMetrics?.authenticity
+  const reviewDepth = impactMetrics?.reviewDepth
+  const complexityTrends = impactMetrics?.complexityTrends
+  const privateWork = impactMetrics?.privateWork
 
   if (!stats) {
     return (
       <>
         <Sidebar user={authUser} />
         <main className="main-content">
-          <div className="spinner-container" style={{ minHeight: '60vh' }}>
-            <div className="spinner"></div>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>Loading your metrics...</p>
+          <div className="page-header">
+            <h1 className="page-title">Dashboard</h1>
+            <p className="page-subtitle">Loading your metrics...</p>
+          </div>
+          <div className="bento-grid">
+            <DashboardSkeleton />
           </div>
         </main>
       </>
@@ -102,33 +123,43 @@ export default function Dashboard() {
         {/* Page Header */}
         <div className="page-header">
           <h1 className="page-title">Dashboard</h1>
-          <p className="page-subtitle">Your open-source proof of work</p>
+          <p className="page-subtitle">Your open-source proof of work — quality over quantity</p>
         </div>
 
         {/* ═══════ BENTO GRID ═══════ */}
         <div className="bento-grid">
-          {/* Row 1: Key metric cards */}
+          {/* Row 0: Data Freshness / Source of Truth bar */}
+          <DataFreshness cacheInfo={cacheInfo} onRefresh={() => fetchData(true)} />
+
+          {/* Row 1: Impact Score — the headline metric */}
+          <ImpactScore impactMetrics={impactMetrics} />
+
+          {/* Row 2: Key metric cards (3+3+3+3) */}
           <MetricCards collab={collab} churn={churn} quality={quality} />
 
-          {/* Row 2: Commit Activity + Overview Stats */}
-          <CommitActivity activityTimeline={activityTimeline} churn={churn} />
-          <OverviewStats stats={stats} />
-
-          {/* Row 3: Heatmap + Top Languages */}
+          {/* Row 3: Profile | Heatmap | Languages (3-6-3) */}
+          <ProfileCard user={user || authUser} stats={stats} totalContributions={totalContributions} langData={langData} quality={quality} collab={collab} churn={churn} />
           <ContributionHeatmap heatmapWeeks={heatmapWeeks} totalContributions={totalContributions} />
           <TopLanguages langData={langData} />
 
-          {/* Row 4: Code Churn + Commit Quality */}
+          {/* Row 4: Overview | Commit Activity | Recent Repos (3-6-3) */}
+          <OverviewStats stats={stats} />
+          <CommitActivity activityTimeline={activityTimeline} churn={churn} />
+          <RecentRepos recentRepos={recentRepos} />
+
+          {/* Row 5: Authenticity | Code Churn | Quality (4-4-4) */}
+          <AuthenticityScore authenticity={authenticity} />
           <CodeChurnChart churn={churn} />
           <CommitQuality quality={quality} />
 
-          {/* Row 5: Collaboration + Recent Repos + Profile */}
-          <CollaborationCard collab={collab} />
-          <RecentRepos recentRepos={recentRepos} />
-          <ProfileCard user={user || authUser} stats={stats} totalContributions={totalContributions} langData={langData} quality={quality} collab={collab} churn={churn} />
+          {/* Row 6: Review Depth | Complexity | Private Work (4-4-4) */}
+          <ReviewDepth reviewDepth={reviewDepth} collab={collab} />
+          <ComplexityTrends complexityTrends={complexityTrends} />
+          <PrivateContributions privateWork={privateWork} stats={stats} />
 
-          {/* Row 6: Commit Pattern Breakdown */}
+          {/* Row 7: Commit Patterns | Collaboration (8-4) */}
           <CommitPatterns quality={quality} />
+          <CollaborationCard collab={collab} />
         </div>
       </main>
     </>

@@ -13,8 +13,8 @@ function DevScoreRing({ score, size = 80 }) {
         <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
           <defs>
             <linearGradient id="devScoreGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#5AC8FA" />
-              <stop offset="100%" stopColor="#BF5AF2" />
+              <stop offset="0%" stopColor="#10B981" />
+              <stop offset="100%" stopColor="#047857" />
             </linearGradient>
           </defs>
           <circle
@@ -32,7 +32,7 @@ function DevScoreRing({ score, size = 80 }) {
         </svg>
         <div style={{ position: 'absolute', textAlign: 'center' }}>
           <div style={{
-            fontSize: '1.2rem', fontWeight: 800, color: '#111827',
+            fontSize: '1.2rem', fontWeight: 700, color: '#0F172A',
             lineHeight: 1, fontFamily: 'var(--mono)',
           }}>
             {score}
@@ -59,7 +59,7 @@ export default function ProfileCard({ user, stats, totalContributions, langData,
   const handle = user?.login || 'dev'
 
   return (
-    <div className="bento-4 card card-padded profile-share-card">
+    <div className="bento-3 card card-padded profile-share-card">
       {/* Identity */}
       <div className="profile-share-header">
         {user?.avatarUrl ? (

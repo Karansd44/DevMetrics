@@ -16,7 +16,7 @@ router.get('/clear-cache', (req, res) => {
 function getCachedStats(username) {
   const cached = statsCache.get(username)
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return cached.data
+    return { data: cached.data, cachedAt: cached.timestamp, ttl: CACHE_TTL }
   }
   return null
 }
@@ -45,11 +45,14 @@ router.get('/stats', async (req, res) => {
     // Check cache first (5-minute TTL) - skip cache if ?nocache=1 is provided
     const skipCache = req.query.nocache === '1'
     if (!skipCache) {
-      const cachedData = getCachedStats(userData.login)
-      if (cachedData) {
+      const cached = getCachedStats(userData.login)
+      if (cached) {
         console.log('[GitHub Stats] Returning cached data for:', userData.login)
         res.set('X-Cache', 'HIT')
-        return res.json(cachedData)
+        return res.json({
+          ...cached.data,
+          _cache: { hit: true, cachedAt: cached.cachedAt, ttl: cached.ttl, age: Date.now() - cached.cachedAt },
+        })
       }
     }
 
@@ -78,7 +81,7 @@ router.get('/stats', async (req, res) => {
       }
     }`
 
-    const [reposRes, events, searchCommits, graphqlRes, prsReviewed, issuesCommented, prsAuthored] = await Promise.all([
+    const [reposRes, events, searchCommits, graphqlRes, prsReviewed, issuesCommented, prsAuthored, prCommentsSearch] = await Promise.all([
       fetch('https://api.github.com/user/repos?per_page=100&sort=updated&visibility=all&affiliation=owner,collaborator,organization_member', { headers }),
       fetch(`https://api.github.com/users/${userData.login}/events?per_page=100`, { headers }).then((r) => r.json()),
       fetch(`https://api.github.com/search/commits?q=author:${userData.login}&sort=author-date&order=desc&per_page=100`, { 
@@ -101,12 +104,16 @@ router.get('/stats', async (req, res) => {
       // PRs authored by the user
       fetch(`https://api.github.com/search/issues?q=author:${userData.login}+is:pr&per_page=1`, { headers })
         .then((r) => r.json()).catch(() => ({ total_count: 0 })),
+      // PR comments by user (review comments on PRs, all-time via Search API)
+      fetch(`https://api.github.com/search/issues?q=commenter:${userData.login}+is:pr+-author:${userData.login}&per_page=1`, { headers })
+        .then((r) => r.json()).catch(() => ({ total_count: 0 })),
     ])
 
     console.log('[GitHub Stats] Collaboration search results:', {
       prsReviewed: prsReviewed?.total_count,
       issuesCommented: issuesCommented?.total_count,
       prsAuthored: prsAuthored?.total_count,
+      prCommentsSearch: prCommentsSearch?.total_count,
     })
 
     // Extract contribution calendar from GraphQL
@@ -275,6 +282,9 @@ router.get('/stats', async (req, res) => {
     let totalAdditions = 0, totalDeletions = 0, commitCount = 0
     const churnTimeline = {}
     
+    // Track per-commit complexity for trend analysis
+    const complexityTimeline = {}
+    
     commitDetails.forEach((commit) => {
       // stats is at the ROOT level of individual commit responses, NOT inside commit.commit
       const stats = commit.stats || {}
@@ -291,6 +301,17 @@ router.get('/stats', async (req, res) => {
         churnTimeline[weekKey].additions += stats.additions || 0
         churnTimeline[weekKey].deletions += stats.deletions || 0
         churnTimeline[weekKey].net += (stats.additions || 0) - (stats.deletions || 0)
+        
+        // Complexity per day — track avg lines changed & file count
+        const totalLines = (stats.additions || 0) + (stats.deletions || 0)
+        const filesChanged = commit.files?.length || 0
+        if (!complexityTimeline[weekKey]) {
+          complexityTimeline[weekKey] = { date: weekKey, avgLines: 0, commits: 0, totalLines: 0, files: 0 }
+        }
+        complexityTimeline[weekKey].totalLines += totalLines
+        complexityTimeline[weekKey].files += filesChanged
+        complexityTimeline[weekKey].commits++
+        complexityTimeline[weekKey].avgLines = Math.round(complexityTimeline[weekKey].totalLines / complexityTimeline[weekKey].commits)
       }
     })
 
@@ -304,13 +325,16 @@ router.get('/stats', async (req, res) => {
     const issueCommentCount = issuesCommented?.total_count || 0
     const prAuthoredCount = prsAuthored?.total_count || 0
     
-    // Supplement with review comment count from events (recent activity)
-    let prCommentCount = 0
+    // PR comment count: prefer Search API (all-time) over events (90-day window)
+    const prCommentCountSearch = prCommentsSearch?.total_count || 0
+    let prCommentCountEvents = 0
     if (Array.isArray(events)) {
       events.forEach((event) => {
-        if (event.type === 'PullRequestReviewCommentEvent') prCommentCount++
+        if (event.type === 'PullRequestReviewCommentEvent') prCommentCountEvents++
       })
     }
+    // Use the higher value — Search API gives all-time PRs commented on, events gives recent inline comments
+    const prCommentCount = Math.max(prCommentCountSearch, prCommentCountEvents)
 
     const collaborationScore = prReviewCount + (prCommentCount * 0.5) + (issueCommentCount * 0.3) + (prAuthoredCount * 0.2)
 
@@ -398,8 +422,9 @@ router.get('/stats', async (req, res) => {
       ? Math.round(qualityScores.reduce((a, b) => a + b, 0) / qualityScores.length)
       : 0
 
-    const meaningfulRatio = commitCount > 0 
-      ? Math.round((meaningfulCommits / commitCount) * 100)
+    const totalAnalyzedCommits = qualityScores.length
+    const meaningfulRatio = totalAnalyzedCommits > 0 
+      ? Math.round((meaningfulCommits / totalAnalyzedCommits) * 100)
       : 0
 
     const qualityGrade = avgQualityScore >= 75 ? 'Excellent' 
@@ -423,6 +448,141 @@ router.get('/stats', async (req, res) => {
       },
     }
 
+    // ─────── AUTHENTICITY SCORE (Anti-AI-Noise Detection) ───────
+    const authenticityScore = (() => {
+      if (totalAnalyzedCommits === 0) return 50 // No data = neutral
+      let score = 100
+      // Penalize high ratio of trivial commits (use totalAnalyzedCommits for consistency)
+      const trivialRatio = trivialCommits / totalAnalyzedCommits
+      score -= Math.round(trivialRatio * 40)
+      // Penalize suspicious activity
+      const suspiciousRatio = suspiciousCommits / totalAnalyzedCommits
+      score -= Math.round(suspiciousRatio * 30)
+      // Reward high-quality work
+      if (avgQualityScore >= 70) score += 10
+      else if (avgQualityScore >= 55) score += 5
+      // Reward good commit messages
+      const goodMessages = commitDetails.filter(c => (c.commit?.message?.split('\n')[0]?.length || 0) >= 30).length
+      if (totalAnalyzedCommits > 0 && (goodMessages / totalAnalyzedCommits) > 0.5) score += 5
+      // Reward balanced add/delete (refactoring indicator)
+      if (totalAdditions > 0 && totalDeletions > 0) {
+        const ratio = Math.min(totalAdditions, totalDeletions) / Math.max(totalAdditions, totalDeletions)
+        if (ratio > 0.2) score += 5
+      }
+      // Reward high meaningful ratio
+      if (meaningfulRatio >= 80) score += 5
+      return Math.max(0, Math.min(100, score))
+    })()
+
+    const authenticityGrade = authenticityScore >= 85 ? 'Verified'
+      : authenticityScore >= 70 ? 'Likely Authentic'
+      : authenticityScore >= 50 ? 'Mixed Signals'
+      : 'Review Needed'
+
+    // ─────── REVIEW DEPTH  ───────
+    // Analyze review events to estimate depth
+    let reviewEventsDetailed = []
+    if (Array.isArray(events)) {
+      events.forEach((event) => {
+        if (event.type === 'PullRequestReviewEvent' || event.type === 'PullRequestReviewCommentEvent') {
+          reviewEventsDetailed.push({
+            type: event.type,
+            date: event.created_at,
+            repo: event.repo?.name || 'unknown',
+            action: event.payload?.action || 'reviewed',
+          })
+        }
+      })
+    }
+    // Calculate weekly average using account age (more accurate than event-window division)
+    const accountAgeWeeks = Math.max(1, Math.round((Date.now() - new Date(userData.created_at).getTime()) / (7 * 24 * 60 * 60 * 1000)))
+    // Use the last year at most for weekly average (52 weeks)
+    const weeksDivisor = Math.min(accountAgeWeeks, 52)
+    const totalReviewActivity = prReviewCount + prCommentCount
+    const avgReviewsPerWeek = totalReviewActivity > 0
+      ? Math.round((totalReviewActivity / weeksDivisor) * 10) / 10
+      : 0
+
+    const helpfulnessScore = Math.round(
+      (prReviewCount * 3) + (prCommentCount * 2) + (issueCommentCount * 1.5) + (reviewEventsDetailed.length * 0.5)
+    )
+
+    console.log('[GitHub Stats] Review Depth raw data:', {
+      prReviewCount, prCommentCount, prCommentCountSearch, prCommentCountEvents,
+      issueCommentCount, reviewEventsDetailed: reviewEventsDetailed.length,
+      accountAgeWeeks, weeksDivisor, avgReviewsPerWeek, helpfulnessScore,
+    })
+
+    const reviewDepth = {
+      totalReviews: prReviewCount,
+      recentReviewActivity: reviewEventsDetailed.length,
+      reviewComments: prCommentCount,
+      issuesHelped: issueCommentCount,
+      avgReviewsPerWeek,
+      helpfulness: helpfulnessScore,
+      recentReviews: reviewEventsDetailed.slice(0, 10),
+    }
+
+    // ─────── COMPLEXITY TRENDS ───────
+    const complexityTrends = Object.values(complexityTimeline).slice(-14).map((d) => ({
+      ...d,
+      complexity: d.avgLines > 300 ? 'High' : d.avgLines > 100 ? 'Medium' : 'Low',
+      complexityNum: d.avgLines > 300 ? 3 : d.avgLines > 100 ? 2 : 1,
+    }))
+
+    // ─────── PRIVATE WORK SUMMARY ───────
+    const privateReposList = repos.filter(r => r.private)
+    const privateWorkSummary = {
+      totalPrivateRepos: privateRepos,
+      totalPublicRepos: publicRepos,
+      privatePercentage: repos.length > 0 ? Math.round((privateRepos / repos.length) * 100) : 0,
+      privateStars: privateReposList.reduce((s, r) => s + r.stargazers_count, 0),
+      privateForks: privateReposList.reduce((s, r) => s + r.forks_count, 0),
+      privateLanguages: (() => {
+        const langMap = {}
+        privateReposList.forEach(r => {
+          if (r.language) langMap[r.language] = (langMap[r.language] || 0) + 1
+        })
+        return Object.entries(langMap).map(([lang, count]) => ({ language: lang, count })).sort((a, b) => b.count - a.count).slice(0, 5)
+      })(),
+      recentPrivateActivity: privateReposList.slice(0, 3).map(r => ({
+        name: r.name,
+        language: r.language,
+        updatedAt: r.updated_at,
+        size: r.size,
+      })),
+      totalPrivateSize: privateReposList.reduce((s, r) => s + (r.size || 0), 0),
+    }
+
+    // ─────── OVERALL IMPACT SCORE ───────
+    // Composite score that represents REAL impact, not vanity metrics
+    const impactScore = (() => {
+      const qualityWeight = 0.30
+      const retentionWeight = 0.20
+      const collaborationWeight = 0.20
+      const authenticityWeight = 0.15
+      const consistencyWeight = 0.15
+
+      const qualityNorm = avgQualityScore
+      const retentionNorm = Math.max(0, Math.min(parseFloat(codeRetention) || 0, 100))
+      const collabNorm = Math.min((collaborationScore / 30) * 100, 100)
+      const authNorm = authenticityScore
+      // Consistency: how many days had activity in the contribution calendar
+      const activeDays = contributionCalendar?.weeks?.reduce((sum, week) => 
+        sum + week.contributionDays.filter(d => d.contributionCount > 0).length, 0) || 0
+      const totalDays = contributionCalendar?.weeks?.reduce((sum, week) => sum + week.contributionDays.length, 0) || 365
+      const consistencyNorm = Math.min((activeDays / totalDays) * 200, 100)
+
+      const raw = Math.round(
+        qualityNorm * qualityWeight +
+        retentionNorm * retentionWeight +
+        collabNorm * collaborationWeight +
+        authNorm * authenticityWeight +
+        consistencyNorm * consistencyWeight
+      )
+      return Math.max(0, Math.min(100, raw))
+    })()
+
     const impactMetrics = {
       codeChurn: {
         totalAdditions,
@@ -443,6 +603,20 @@ router.get('/stats', async (req, res) => {
         score: Math.round(collaborationScore),
       },
       quality: qualityMetrics,
+      authenticity: {
+        score: authenticityScore,
+        grade: authenticityGrade,
+        signals: {
+          trivialRatio: totalAnalyzedCommits > 0 ? Math.round((trivialCommits / totalAnalyzedCommits) * 100) : 0,
+          suspiciousRatio: totalAnalyzedCommits > 0 ? Math.round((suspiciousCommits / totalAnalyzedCommits) * 100) : 0,
+          goodMessageRatio: totalAnalyzedCommits > 0 ? Math.round((commitDetails.filter(c => (c.commit?.message?.split('\n')[0]?.length || 0) >= 30).length / totalAnalyzedCommits) * 100) : 0,
+          avgLinesPerCommit,
+        },
+      },
+      reviewDepth,
+      complexityTrends,
+      privateWork: privateWorkSummary,
+      impactScore,
     }
 
     console.log('[GitHub Stats] Impact metrics:', {
@@ -450,6 +624,8 @@ router.get('/stats', async (req, res) => {
       churnRate, retention: codeRetention, avgLines: avgLinesPerCommit,
       quality: avgQualityScore, grade: qualityGrade,
       meaningful: meaningfulCommits, trivial: trivialCommits, suspicious: suspiciousCommits,
+      authenticityScore, authenticityGrade, impactScore,
+      privateRepos, complexityTrends: complexityTrends.length,
     })
 
     const responseData = {
@@ -488,11 +664,15 @@ router.get('/stats', async (req, res) => {
     console.log('[GitHub Stats] Final counts - Total:', repos.length, 'Public:', publicRepos, 'Private:', privateRepos, 'Forked:', forkedRepos)
 
     // Cache the response for 5 minutes
+    const now = Date.now()
     setCachedStats(userData.login, responseData)
     
     res.set('X-Cache', 'MISS')
     res.set('Cache-Control', 'private, max-age=300') // 5 minutes client-side cache
-    res.json(responseData)
+    res.json({
+      ...responseData,
+      _cache: { hit: false, cachedAt: now, ttl: CACHE_TTL, age: 0 },
+    })
   } catch (error) {
     console.error('[GitHub] Stats error:', error)
     res.status(500).json({ error: 'Failed to fetch GitHub data' })

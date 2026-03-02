@@ -6,7 +6,7 @@ import { PURPLE, tooltipStyle, CHART_COLORS } from './constants'
 
 export default function CommitActivity({ activityTimeline, churn }) {
   return (
-    <div id="analytics-section" className="bento-8 card card-padded">
+    <div id="analytics-section" className="bento-6 card card-padded">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div>
           <h2 className="section-title">Commit Activity</h2>

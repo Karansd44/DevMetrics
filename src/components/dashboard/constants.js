@@ -1,22 +1,27 @@
-/* Shared constants for dashboard components */
+/* ── Design tokens · Monochromatic: Emerald accent · Slate neutral ── */
 
-export const PURPLE = '#BF5AF2'
+export const EMERALD = '#059669'
+export const PURPLE = EMERALD // Legacy alias → Emerald
 
 export const LANG_COLORS = [
-  '#BF5AF2', '#007AFF', '#34C759', '#FF9500', '#FF3B30', '#5AC8FA', '#AF52DE',
+  '#064E3B', '#065F46', '#047857', '#059669', '#10B981', '#34D399',
 ]
 
 export const tooltipStyle = {
-  backgroundColor: '#fff',
-  border: '1px solid #E5E7EB',
-  borderRadius: '10px',
-  color: '#111827',
-  fontSize: '0.8rem',
-  boxShadow: 'none',
+  backgroundColor: '#FFFFFF',
+  border: '1px solid #F1F5F9',
+  borderRadius: '8px',
+  color: '#0F172A',
+  fontSize: '0.78rem',
+  fontFamily: '"Inter", system-ui, sans-serif',
+  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+  padding: '8px 12px',
 }
 
 export const CHART_COLORS = {
-  grid: '#F3F4F6',
-  axis: '#9CA3AF',
-  axisLine: '#E5E7EB',
+  grid: '#F1F5F9',
+  axis: '#94A3B8',
+  axisLine: '#E2E8F0',
+  primary: '#059669',
+  secondary: '#64748B',
 }

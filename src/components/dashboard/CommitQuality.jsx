@@ -5,14 +5,14 @@ function ScoreRing({ score, size = 100 }) {
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
   const offset = circumference - (score / 100) * circumference
-  const color = score >= 75 ? '#34C759' : score >= 60 ? '#007AFF' : score >= 45 ? '#FF9500' : '#FF3B30'
+  const color = score >= 75 ? '#047857' : score >= 60 ? '#059669' : score >= 45 ? '#D97706' : '#DC2626'
 
   return (
     <div className="score-ring-container" style={{ width: size, height: size }}>
       <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
         <circle
           cx={size / 2} cy={size / 2} r={radius}
-          fill="none" stroke="#F3F4F6" strokeWidth={strokeWidth}
+          fill="none" stroke="#F1F5F9" strokeWidth={strokeWidth}
         />
         <circle
           cx={size / 2} cy={size / 2} r={radius}
@@ -35,7 +35,7 @@ export default function CommitQuality({ quality }) {
   if (!quality) return null
 
   return (
-    <div className="bento-6 card card-padded">
+    <div className="bento-4 card card-padded">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
         <div>
           <h2 className="section-title">Commit Quality</h2>

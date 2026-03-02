@@ -22,7 +22,7 @@ function StatRow({ icon, label, value, color, bg }) {
 
 export default function OverviewStats({ stats }) {
   return (
-    <div className="bento-4 card card-padded" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div className="bento-3 card card-padded" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <h2 className="section-title">Overview</h2>
       <StatRow icon={<Star size={16} />} label="Stars" value={stats.totalStars} color="var(--amber)" bg="var(--amber-light)" />
       <StatRow icon={<Code2 size={16} />} label="Repositories" value={stats.totalRepos} color="var(--green)" bg="var(--green-light)" />

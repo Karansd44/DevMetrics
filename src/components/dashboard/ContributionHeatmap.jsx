@@ -2,7 +2,7 @@ import { PURPLE } from './constants'
 
 export default function ContributionHeatmap({ heatmapWeeks, totalContributions }) {
   return (
-    <div className="bento-8 card card-padded">
+    <div className="bento-6 card card-padded">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
         <div>
           <h2 className="section-title">Contribution Heatmap</h2>

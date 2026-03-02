@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevMetrics - Project Report</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --accent: #06b6d4;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #22c55e;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            line-height: 1.7;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 50px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                color: #1a1a2e;
+                padding: 20px 40px;
+                max-width: 100%;
+            }
+            :root {
+                --primary: #4f46e5;
+                --text: #1a1a2e;
+                --text-muted: #475569;
+                --border: #d1d5db;
+                --bg-card: #f8fafc;
+            }
+            .cover-page { background: linear-gradient(135deg, #4f46e5, #06b6d4) !important; }
+            .page-break { page-break-before: always; }
+            .no-print { display: none; }
+        }
+
+        /* Cover Page */
+        .cover-page {
+            background: linear-gradient(135deg, #6366f1 0%, #06b6d4 50%, #8b5cf6 100%);
+            border-radius: 16px;
+            padding: 80px 50px;
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cover-page::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        }
+
+        .cover-page h1 {
+            font-size: 3.5em;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .cover-page .subtitle {
+            font-size: 1.3em;
+            color: rgba(255,255,255,0.9);
+            font-weight: 300;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .cover-meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .cover-meta span {
+            background: rgba(255,255,255,0.15);
+            padding: 8px 20px;
+            border-radius: 30px;
+            color: white;
+            font-size: 0.9em;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Section Headers */
+        .section-number {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            width: 36px;
+            height: 36px;
+            line-height: 36px;
+            text-align: center;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9em;
+            margin-right: 12px;
+            vertical-align: middle;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin: 50px 0 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+            color: var(--primary-light);
+        }
+
+        h3 {
+            font-size: 1.25em;
+            font-weight: 600;
+            margin: 30px 0 12px;
+            color: var(--text);
+        }
+
+        h4 {
+            font-size: 1.05em;
+            font-weight: 600;
+            margin: 20px 0 8px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85em;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+
+        .highlight-card {
+            background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(6,182,212,0.1));
+            border: 1px solid rgba(99,102,241,0.3);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.92em;
+        }
+
+        thead th {
+            background: var(--bg-card);
+            color: var(--primary-light);
+            font-weight: 600;
+            text-align: left;
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--primary);
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tbody td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        tbody tr:hover { background: rgba(99,102,241,0.05); }
+        tbody td:first-child { font-weight: 500; color: var(--text); }
+
+        /* Lists */
+        ul, ol {
+            margin: 10px 0;
+            padding-left: 24px;
+        }
+
+        li {
+            margin: 6px 0;
+            color: var(--text-muted);
+        }
+
+        li strong { color: var(--text); }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .badge-primary { background: rgba(99,102,241,0.15); color: var(--primary-light); }
+        .badge-accent { background: rgba(6,182,212,0.15); color: var(--accent); }
+        .badge-success { background: rgba(34,197,94,0.15); color: var(--success); }
+        .badge-warning { background: rgba(245,158,11,0.15); color: var(--warning); }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .feature-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .feature-item .icon {
+            font-size: 1.5em;
+            margin-bottom: 8px;
+        }
+
+        .feature-item h5 {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .feature-item p {
+            font-size: 0.85em;
+            margin: 0;
+        }
+
+        /* Tech Stack Visual */
+        .tech-layer {
+            border-left: 3px solid var(--primary);
+            padding: 14px 20px;
+            margin: 10px 0;
+            background: var(--bg-card);
+            border-radius: 0 10px 10px 0;
+        }
+
+        .tech-layer .label {
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary-light);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .tech-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .tech-pill {
+            background: rgba(99,102,241,0.12);
+            border: 1px solid rgba(99,102,241,0.25);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.82em;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        /* Architecture Diagram (Styled) */
+        .arch-box {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .arch-box.client { border-color: var(--primary); background: rgba(99,102,241,0.05); }
+        .arch-box.server { border-color: var(--accent); background: rgba(6,182,212,0.05); }
+        .arch-box.external { border-color: var(--warning); background: rgba(245,158,11,0.05); }
+
+        .arch-arrow {
+            text-align: center;
+            font-size: 1.5em;
+            color: var(--text-muted);
+            margin: 4px 0;
+        }
+
+        /* Comparison Table */
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .comparison-cell {
+            background: var(--bg-card);
+            padding: 14px;
+            text-align: center;
+        }
+
+        .comparison-cell.header {
+            font-weight: 600;
+            color: var(--primary-light);
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary-light);
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Uniqueness Section */
+        .unique-item {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            margin: 14px 0;
+            padding: 16px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .unique-number {
+            min-width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85em;
+        }
+
+        .unique-content h5 {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .unique-content p {
+            font-size: 0.88em;
+            margin: 0;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85em;
+        }
+
+        /* Print PDF Button */
+        .print-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+            z-index: 1000;
+            transition: transform 0.2s;
+        }
+
+        .print-btn:hover { transform: scale(1.05); }
+
+        @media print {
+            .print-btn { display: none; }
+        }
+
+        .toc-list {
+            list-style: none;
+            padding: 0;
+        }
+        .toc-list li {
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .toc-list li:last-child { border-bottom: none; }
+        .toc-list .num { color: var(--primary-light); font-weight: 600; margin-right: 10px; }
+    </style>
+</head>
+<body>
+
+    <button class="print-btn no-print" onclick="window.print()">📄 Save as PDF</button>
+
+    <!-- ===================== COVER PAGE ===================== -->
+    <div class="cover-page">
+        <h1>DevMetrics</h1>
+        <p class="subtitle">GitHub Analytics Dashboard — Project Report</p>
+        <div class="cover-meta">
+            <span>📦 Version 0.1.0</span>
+            <span>📅 February 2026</span>
+            <span>⚙️ React + Express</span>
+            <span>🔒 OAuth 2.0</span>
+        </div>
+    </div>
+
+    <!-- ===================== TABLE OF CONTENTS ===================== -->
+    <div class="card">
+        <h4>Table of Contents</h4>
+        <ul class="toc-list">
+            <li><span class="num">1.</span> Executive Summary</li>
+            <li><span class="num">2.</span> Problem Statement</li>
+            <li><span class="num">3.</span> What Makes DevMetrics Unique</li>
+            <li><span class="num">4.</span> Solution Overview & Key Features</li>
+            <li><span class="num">5.</span> System Architecture</li>
+            <li><span class="num">6.</span> Technology Stack (Complete)</li>
+            <li><span class="num">7.</span> Component Architecture</li>
+            <li><span class="num">8.</span> Security & Authentication</li>
+            <li><span class="num">9.</span> Performance Optimization</li>
+            <li><span class="num">10.</span> Deployment & Future Scope</li>
+        </ul>
+    </div>
+
+    <!-- ===================== 1. EXECUTIVE SUMMARY ===================== -->
+    <h2><span class="section-number">1</span> Executive Summary</h2>
+
+    <div class="highlight-card">
+        <p style="font-size: 1.05em; color: var(--text); margin-bottom: 0;">
+            <strong>DevMetrics</strong> is a comprehensive GitHub analytics dashboard that transforms raw GitHub data into 
+            actionable developer insights. It provides real-time visualization of coding activity, repository statistics, 
+            contribution patterns, code quality metrics, and collaboration insights through an intuitive, modern dark-themed web interface.
+        </p>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div class="stat-value">14</div>
+            <div class="stat-label">React Components</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">6</div>
+            <div class="stat-label">API Endpoints</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">~3,500</div>
+            <div class="stat-label">Lines of Code</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">10+</div>
+            <div class="stat-label">Visualizations</div>
+        </div>
+    </div>
+
+    <p>
+        The platform follows a <strong>Client-Server architecture</strong> (SPA + REST API), utilizing GitHub OAuth 2.0 
+        for secure authentication and leveraging both GitHub REST API v3 and GraphQL API v4 for comprehensive data retrieval. 
+        An intelligent in-memory caching layer with a 5-minute TTL ensures optimal performance and minimal API rate limit consumption.
+    </p>
+
+    <!-- ===================== 2. PROBLEM STATEMENT ===================== -->
+    <h2><span class="section-number">2</span> Problem Statement</h2>
+
+    <h3>2.1 Core Problems Addressed</h3>
+    <p>Modern developers face several challenges in understanding, tracking, and showcasing their coding productivity and impact:</p>
+
+    <div class="feature-grid">
+        <div class="feature-item">
+            <div class="icon">📊</div>
+            <h5>Fragmented Analytics</h5>
+            <p>GitHub provides raw data but lacks comprehensive analytics visualization. Developers must manually piece together insights from multiple pages and API endpoints.</p>
+        </div>
+        <div class="feature-item">
+            <div class="icon">🔍</div>
+            <h5>Limited Insights</h5>
+            <p>Basic GitHub stats (contribution graph, repo list) don't reveal code quality, collaboration patterns, or productivity trends over time.</p>
+        </div>
+        <div class="feature-item">
+            <div class="icon">📈</div>
+            <h5>No Historical Tracking</h5>
+            <p>Difficult to track coding patterns, improvement trajectories, and long-term productivity trends. GitHub's profile shows only the last year.</p>
+        </div>
+        <div class="feature-item">
+            <div class="icon">⚠️</div>
+            <h5>Absence of Quality Metrics</h5>
+            <p>No built-in code churn analysis, commit quality scoring, or commit pattern detection. Developers lack feedback on their coding habits.</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h5>Additional Pain Points</h5>
+        <ul>
+            <li><strong>Poor Collaboration Visibility:</strong> Hard to measure team contribution and collaboration effectiveness across repositories.</li>
+            <li><strong>No Centralized Dashboard:</strong> Developers must visit multiple GitHub pages to gather a holistic view of their work.</li>
+            <li><strong>Missing Showcase Tools:</strong> No easy way to share developer achievements and metrics with stakeholders, recruiters, or managers.</li>
+            <li><strong>No Commit Pattern Analysis:</strong> Developers don't know their peak productive hours, most active days, or commit frequency trends.</li>
+        </ul>
+    </div>
+
+    <!-- ===================== 3. UNIQUENESS ===================== -->
+    <h2><span class="section-number">3</span> What Makes DevMetrics Unique</h2>
+
+    <p>While tools like GitHub Profile README generators and basic contribution trackers exist, DevMetrics stands apart in several critical ways:</p>
+
+    <div class="unique-item">
+        <div class="unique-number">1</div>
+        <div class="unique-content">
+            <h5>All-in-One Analytics Engine</h5>
+            <p>Unlike tools that show one metric (e.g., streak counters, language stats), DevMetrics aggregates <strong>10+ distinct analytics</strong> — from commit quality scoring to code churn, collaboration metrics to language distribution — into a single unified dashboard.</p>
+        </div>
+    </div>
+
+    <div class="unique-item">
+        <div class="unique-number">2</div>
+        <div class="unique-content">
+            <h5>Commit Quality Scoring (Original Algorithm)</h5>
+            <p>DevMetrics introduces a <strong>proprietary commit quality scoring system (0–100)</strong> that evaluates commit message length, descriptiveness, and adherence to conventional commit formats. No other GitHub analytics tool provides this level of commit quality feedback.</p>
+        </div>
+    </div>
+
+    <div class="unique-item">
+        <div class="unique-number">3</div>
+        <div class="unique-content">
+            <h5>Code Churn Analysis</h5>
+            <p>Tracks <strong>weekly additions vs. deletions</strong> and calculates a churn ratio to identify code stability. High churn indicates areas of instability. This is typically found only in enterprise CI/CD tools, not in free developer dashboards.</p>
+        </div>
+    </div>
+
+    <div class="unique-item">
+        <div class="unique-number">4</div>
+        <div class="unique-content">
+            <h5>Real-time with Intelligent Caching</h5>
+            <p>Unlike static badge generators, DevMetrics provides <strong>live, real-time analytics</strong> with a smart 5-minute cache TTL. Cached responses return in ~50ms vs. 2–5s for fresh fetches — a 40–100× speed improvement.</p>
+        </div>
+    </div>
+
+    <div class="unique-item">
+        <div class="unique-number">5</div>
+        <div class="unique-content">
+            <h5>Combined REST + GraphQL Strategy</h5>
+            <p>Uses <strong>both GitHub REST API v3 and GraphQL API v4</strong> in parallel for maximum data coverage. The contribution calendar uses GraphQL for efficiency, while repo/event data uses REST — a hybrid approach uncommon in similar tools.</p>
+        </div>
+    </div>
+
+    <div class="unique-item">
+        <div class="unique-number">6</div>
+        <div class="unique-content">
+            <h5>Developer Productivity Patterns</h5>
+            <p>Analyzes <strong>commit timing patterns</strong> — peak coding hours, most active weekdays, and commit frequency — providing behavioral insights that help developers understand and optimize their work habits.</p>
+        </div>
+    </div>
+
+    <h3>Comparison with Existing Tools</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Feature</th>
+                <th>GitHub Profile</th>
+                <th>GitHub Readme Stats</th>
+                <th>DevMetrics ✅</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Contribution Heatmap</td>
+                <td>✅ Basic</td>
+                <td>❌</td>
+                <td>✅ Enhanced</td>
+            </tr>
+            <tr>
+                <td>Language Breakdown</td>
+                <td>❌</td>
+                <td>✅ Static Badge</td>
+                <td>✅ Interactive Donut Chart</td>
+            </tr>
+            <tr>
+                <td>Commit Quality Score</td>
+                <td>❌</td>
+                <td>❌</td>
+                <td>✅ 0–100 Scoring</td>
+            </tr>
+            <tr>
+                <td>Code Churn Analysis</td>
+                <td>❌</td>
+                <td>❌</td>
+                <td>✅ Weekly Analysis</td>
+            </tr>
+            <tr>
+                <td>Collaboration Metrics</td>
+                <td>❌</td>
+                <td>❌</td>
+                <td>✅ Team Insights</td>
+            </tr>
+            <tr>
+                <td>Commit Patterns</td>
+                <td>❌</td>
+                <td>❌</td>
+                <td>✅ Hour/Day Analysis</td>
+            </tr>
+            <tr>
+                <td>Real-time Data</td>
+                <td>✅ Delayed</td>
+                <td>❌ Static</td>
+                <td>✅ Live (5-min cache)</td>
+            </tr>
+            <tr>
+                <td>Interactive Charts</td>
+                <td>❌</td>
+                <td>❌ SVG images</td>
+                <td>✅ Recharts interactive</td>
+            </tr>
+            <tr>
+                <td>Dark Mode UI</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅ Custom Design</td>
+            </tr>
+            <tr>
+                <td>Secure OAuth Login</td>
+                <td>N/A</td>
+                <td>❌ Token-based</td>
+                <td>✅ Session-based OAuth</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- ===================== 4. SOLUTION & FEATURES ===================== -->
+    <div class="page-break"></div>
+    <h2><span class="section-number">4</span> Solution Overview & Key Features</h2>
+
+    <h3>4.1 Core Solution</h3>
+    <div class="highlight-card">
+        <p style="color: var(--text); margin: 0;">
+            DevMetrics provides a <strong>unified, single-page analytics dashboard</strong> that aggregates data from multiple GitHub API endpoints, 
+            processes it through a custom analytics engine, and presents actionable insights via interactive charts, heatmaps, and statistical breakdowns.
+        </p>
+    </div>
+
+    <h3>4.2 Dashboard Analytics Features</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Feature</th>
+                <th>Description</th>
+                <th>Visualization</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Key Metric Cards</td>
+                <td>Total commits, active repos, code contributions, longest streak</td>
+                <td>Stat Cards with icons</td>
+            </tr>
+            <tr>
+                <td>Commit Activity</td>
+                <td>30-day commit timeline showing daily activity</td>
+                <td>Recharts AreaChart</td>
+            </tr>
+            <tr>
+                <td>Contribution Heatmap</td>
+                <td>GitHub-style 52-week × 7-day calendar grid</td>
+                <td>Custom SVG Grid</td>
+            </tr>
+            <tr>
+                <td>Language Breakdown</td>
+                <td>Top 5 programming languages with byte percentages</td>
+                <td>Recharts PieChart (Donut)</td>
+            </tr>
+            <tr>
+                <td>Code Churn Analysis</td>
+                <td>Weekly code additions vs. deletions with churn ratio</td>
+                <td>Recharts BarChart</td>
+            </tr>
+            <tr>
+                <td>Commit Quality Score</td>
+                <td>Score (0–100), avg message length, descriptive %</td>
+                <td>Progress indicator + stats</td>
+            </tr>
+            <tr>
+                <td>Collaboration Metrics</td>
+                <td>Unique collaborators, PR reviews, team contribution %</td>
+                <td>Metric cards</td>
+            </tr>
+            <tr>
+                <td>Recent Repositories</td>
+                <td>Last 10 updated repos with stars, forks, language</td>
+                <td>Card list</td>
+            </tr>
+            <tr>
+                <td>Commit Patterns</td>
+                <td>Peak coding hours, active weekdays, commit frequency</td>
+                <td>Pattern breakdown</td>
+            </tr>
+            <tr>
+                <td>Repository Overview</td>
+                <td>Total stars, forks, watchers aggregated</td>
+                <td>Summary stats</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>4.3 User Experience Features</h3>
+    <div class="feature-grid">
+        <div class="feature-item">
+            <h5>🌙 Dark Mode UI</h5>
+            <p>Modern dark-themed design, easy on the eyes for long coding sessions.</p>
+        </div>
+        <div class="feature-item">
+            <h5>💀 Skeleton Loaders</h5>
+            <p>Smooth loading states with skeleton placeholders while data loads.</p>
+        </div>
+        <div class="feature-item">
+            <h5>📱 Responsive Design</h5>
+            <p>Optimized layout for mobile, tablet, and desktop viewports.</p>
+        </div>
+        <div class="feature-item">
+            <h5>⚡ Real-time Updates</h5>
+            <p>Fresh data every 5 minutes with intelligent background caching.</p>
+        </div>
+    </div>
+
+    <!-- ===================== 5. SYSTEM ARCHITECTURE ===================== -->
+    <div class="page-break"></div>
+    <h2><span class="section-number">5</span> System Architecture</h2>
+
+    <h3>5.1 High-Level Architecture (3-Tier)</h3>
+
+    <div class="arch-box client">
+        <h4 style="color: var(--primary-light); margin: 0 0 8px;">CLIENT TIER — React 19 SPA</h4>
+        <p style="margin: 0;">React Router for routing &bull; Context API for state &bull; Recharts for visualization &bull; Lucide for icons</p>
+        <p style="margin: 4px 0 0; font-size: 0.85em;"><span class="badge badge-primary">Port 5173 (Vite)</span></p>
+    </div>
+    <div class="arch-arrow">⇅ HTTP/HTTPS</div>
+    <div class="arch-box server">
+        <h4 style="color: var(--accent); margin: 0 0 8px;">APPLICATION TIER — Express.js Server</h4>
+        <p style="margin: 0;">RESTful API &bull; Session-based Auth &bull; In-memory Caching &bull; OAuth 2.0 Integration</p>
+        <p style="margin: 4px 0 0; font-size: 0.85em;"><span class="badge badge-accent">Port 3001 (Express)</span></p>
+    </div>
+    <div class="arch-arrow">⇅ HTTPS</div>
+    <div class="arch-box external">
+        <h4 style="color: var(--warning); margin: 0 0 8px;">EXTERNAL SERVICES — GitHub APIs</h4>
+        <p style="margin: 0;">GitHub OAuth Server &bull; REST API v3 (repos, events, commits) &bull; GraphQL API v4 (contribution calendar)</p>
+        <p style="margin: 4px 0 0; font-size: 0.85em;"><span class="badge badge-warning">api.github.com</span></p>
+    </div>
+
+    <h3>5.2 Data Flow</h3>
+    <div class="card">
+        <ol>
+            <li><strong>User authenticates</strong> via GitHub OAuth 2.0 → access token stored in server session.</li>
+            <li><strong>Dashboard mounts</strong> → verifies auth via <code>/auth/me</code> → requests stats via <code>/api/github/stats</code>.</li>
+            <li><strong>Backend checks cache</strong> → if cache hit (&lt; 5 min) returns instantly (~50ms).</li>
+            <li><strong>On cache miss</strong> → fires 4 parallel API calls via <code>Promise.all</code>: repos, events, commits (REST) + contribution calendar (GraphQL).</li>
+            <li><strong>Analytics engine processes</strong> raw data → language stats, commit activity, code churn, quality scoring, collaboration metrics.</li>
+            <li><strong>Results cached</strong> with 5-min TTL → JSON response sent to frontend.</li>
+            <li><strong>React components render</strong> interactive charts and cards from the processed data.</li>
+        </ol>
+    </div>
+
+    <!-- ===================== 6. TECHNOLOGY STACK ===================== -->
+    <div class="page-break"></div>
+    <h2><span class="section-number">6</span> Technology Stack (Complete)</h2>
+
+    <h3>6.1 Frontend Technologies</h3>
+    <div class="tech-layer">
+        <div class="label">UI Framework</div>
+        <div class="tech-pills">
+            <span class="tech-pill">React 19.2.3</span>
+            <span class="tech-pill">React DOM 19.2.3</span>
+        </div>
+    </div>
+    <div class="tech-layer">
+        <div class="label">Routing</div>
+        <div class="tech-pills">
+            <span class="tech-pill">React Router DOM 7.5.3</span>
+        </div>
+    </div>
+    <div class="tech-layer">
+        <div class="label">Data Visualization</div>
+        <div class="tech-pills">
+            <span class="tech-pill">Recharts 3.7.0 (D3.js-based)</span>
+        </div>
+    </div>
+    <div class="tech-layer">
+        <div class="label">UI Icons</div>
+        <div class="tech-pills">
+            <span class="tech-pill">Lucide React 0.574.0</span>
+        </div>
+    </div>
+    <div class="tech-layer">
+        <div class="label">Build Tool</div>
+        <div class="tech-pills">
+            <span class="tech-pill">Vite 6.3.5</span>
+            <span class="tech-pill">@vitejs/plugin-react 4.4.1</span>
+        </div>
+    </div>
+
+    <h3>6.2 Backend Technologies</h3>
+    <div class="tech-layer" style="border-color: var(--accent);">
+        <div class="label" style="color: var(--accent);">Server Framework</div>
+        <div class="tech-pills">
+            <span class="tech-pill">Express.js 4.21.2</span>
+            <span class="tech-pill">Node.js (Runtime)</span>
+        </div>
+    </div>
+    <div class="tech-layer" style="border-color: var(--accent);">
+        <div class="label" style="color: var(--accent);">Session Management</div>
+        <div class="tech-pills">
+            <span class="tech-pill">Express Session 1.18.1</span>
+        </div>
+    </div>
+    <div class="tech-layer" style="border-color: var(--accent);">
+        <div class="label" style="color: var(--accent);">Middleware</div>
+        <div class="tech-pills">
+            <span class="tech-pill">CORS 2.8.5</span>
+            <span class="tech-pill">dotenv 16.4.7</span>
+        </div>
+    </div>
+
+    <h3>6.3 External APIs & Services</h3>
+    <div class="tech-layer" style="border-color: var(--warning);">
+        <div class="label" style="color: var(--warning);">GitHub Integration</div>
+        <div class="tech-pills">
+            <span class="tech-pill">GitHub REST API v3</span>
+            <span class="tech-pill">GitHub GraphQL API v4</span>
+            <span class="tech-pill">GitHub OAuth 2.0</span>
+        </div>
+    </div>
+
+    <h3>6.4 Development Tools</h3>
+    <div class="tech-layer" style="border-color: var(--success);">
+        <div class="label" style="color: var(--success);">Dev Tooling</div>
+        <div class="tech-pills">
+            <span class="tech-pill">Concurrently 9.1.2</span>
+            <span class="tech-pill">Vite HMR (Hot Module Replacement)</span>
+            <span class="tech-pill">ESModules (type: "module")</span>
+        </div>
+    </div>
+
+    <h3>6.5 Complete Dependency Summary</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Package</th>
+                <th>Version</th>
+                <th>Type</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>react</td>
+                <td>19.2.3</td>
+                <td><span class="badge badge-primary">Production</span></td>
+                <td>UI component library with concurrent rendering</td>
+            </tr>
+            <tr>
+                <td>react-dom</td>
+                <td>19.2.3</td>
+                <td><span class="badge badge-primary">Production</span></td>
+                <td>React renderer for web browsers</td>
+            </tr>
+            <tr>
+                <td>react-router-dom</td>
+                <td>7.5.3</td>
+                <td><span class="badge badge-primary">Production</span></td>
+                <td>Client-side routing &amp; protected routes</td>
+            </tr>
+            <tr>
+                <td>recharts</td>
+                <td>3.7.0</td>
+                <td><span class="badge badge-primary">Production</span></td>
+                <td>D3.js-based charting (Area, Bar, Pie)</td>
+            </tr>
+            <tr>
+                <td>lucide-react</td>
+                <td>0.574.0</td>
+                <td><span class="badge badge-primary">Production</span></td>
+                <td>1000+ SVG icon library</td>
+            </tr>
+            <tr>
+                <td>express</td>
+                <td>4.21.2</td>
+                <td><span class="badge badge-primary">Production</span></td>
+                <td>Node.js web framework for REST API</td>
+            </tr>
+            <tr>
+                <td>express-session</td>
+                <td>1.18.1</td>
+                <td><span class="badge badge-primary">Production</span></td>
+                <td>Server-side session management</td>
+            </tr>
+            <tr>
+                <td>cors</td>
+                <td>2.8.5</td>
+                <td><span class="badge badge-primary">Production</span></td>
+                <td>Cross-origin resource sharing</td>
+            </tr>
+            <tr>
+                <td>dotenv</td>
+                <td>16.4.7</td>
+                <td><span class="badge badge-primary">Production</span></td>
+                <td>Environment variable management</td>
+            </tr>
+            <tr>
+                <td>vite</td>
+                <td>6.3.5</td>
+                <td><span class="badge badge-success">Dev</span></td>
+                <td>Ultra-fast build tool with HMR</td>
+            </tr>
+            <tr>
+                <td>@vitejs/plugin-react</td>
+                <td>4.4.1</td>
+                <td><span class="badge badge-success">Dev</span></td>
+                <td>Vite plugin for React Fast Refresh</td>
+            </tr>
+            <tr>
+                <td>concurrently</td>
+                <td>9.1.2</td>
+                <td><span class="badge badge-success">Dev</span></td>
+                <td>Run frontend + backend in parallel</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- ===================== 7. COMPONENT ARCHITECTURE ===================== -->
+    <div class="page-break"></div>
+    <h2><span class="section-number">7</span> Component Architecture</h2>
+
+    <h3>7.1 React Component Hierarchy</h3>
+    <div class="card" style="font-family: monospace; font-size: 0.88em; line-height: 1.9; color: var(--text);">
+        <strong style="color: var(--primary-light);">App.jsx</strong> (Router + AuthProvider)<br>
+        ├── <strong>LandingPage</strong> → Navbar → Logo + OAuth Button<br>
+        ├── <strong>SignInPage</strong> → GitHub OAuth Button<br>
+        └── <strong>DashboardPage</strong> (Protected Route)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;├── <strong>Sidebar</strong> → User Profile, Nav Links, Logout<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;└── <strong>Dashboard</strong> (Main Orchestrator)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── MetricCards (4 KPI cards)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── CommitActivity (AreaChart)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── ContributionHeatmap (SVG calendar)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── TopLanguages (DonutChart)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── CodeChurnChart (BarChart)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── CommitQuality (Score indicator)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── CollaborationCard (Team metrics)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── RecentRepos (Repo list)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── CommitPatterns (Timing analysis)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── OverviewStats (Repo overview)
+    </div>
+
+    <h3>7.2 Component Responsibilities</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Component</th>
+                <th>Role</th>
+                <th>Data Source</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>App.jsx</td><td>Router, auth guard, global state provider</td><td>AuthContext</td></tr>
+            <tr><td>Dashboard.jsx</td><td>Data fetcher & orchestrator, grid layout</td><td>/api/github/stats</td></tr>
+            <tr><td>MetricCards.jsx</td><td>4 key performance indicators</td><td>metrics object</td></tr>
+            <tr><td>CommitActivity.jsx</td><td>30-day commit timeline</td><td>commitActivity[]</td></tr>
+            <tr><td>ContributionHeatmap.jsx</td><td>52-week contribution calendar</td><td>contributionCalendar{}</td></tr>
+            <tr><td>TopLanguages.jsx</td><td>Language distribution donut chart</td><td>languages[]</td></tr>
+            <tr><td>CodeChurnChart.jsx</td><td>Code stability analysis</td><td>codeChurn[]</td></tr>
+            <tr><td>CommitQuality.jsx</td><td>Commit quality scoring</td><td>commitQuality{}</td></tr>
+            <tr><td>CollaborationCard.jsx</td><td>Team collaboration metrics</td><td>collaboration{}</td></tr>
+            <tr><td>RecentRepos.jsx</td><td>Latest repos sorted by update</td><td>recentRepos[]</td></tr>
+            <tr><td>CommitPatterns.jsx</td><td>Commit timing analysis</td><td>commitPatterns{}</td></tr>
+            <tr><td>OverviewStats.jsx</td><td>Aggregated repo statistics</td><td>overview{}</td></tr>
+            <tr><td>SkeletonLoaders.jsx</td><td>Loading state placeholders</td><td>N/A</td></tr>
+            <tr><td>ProfileCard.jsx</td><td>User profile display</td><td>user object</td></tr>
+        </tbody>
+    </table>
+
+    <!-- ===================== 8. SECURITY ===================== -->
+    <h2><span class="section-number">8</span> Security & Authentication</h2>
+
+    <h3>8.1 OAuth 2.0 Authentication Flow</h3>
+    <div class="card">
+        <ol>
+            <li><strong>User clicks "Sign in with GitHub"</strong> → Frontend redirects to <code>/auth/github</code></li>
+            <li><strong>Express builds OAuth URL</strong> with client_id, redirect_uri, and scopes (<code>read:user</code>, <code>user:email</code>, <code>repo</code>)</li>
+            <li><strong>User redirected to GitHub</strong> → grants permission → GitHub redirects back with authorization code</li>
+            <li><strong>Backend exchanges code for access_token</strong> → fetches user profile from GitHub API</li>
+            <li><strong>Token + user stored in session</strong> → session cookie set → user redirected to dashboard</li>
+            <li><strong>All subsequent requests</strong> validated via session cookie — no token exposed to frontend</li>
+        </ol>
+    </div>
+
+    <h3>8.2 Security Measures</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Layer</th>
+                <th>Measure</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Transport</td><td>HTTPS (Production)</td><td>Encrypt data in transit</td></tr>
+            <tr><td>Authentication</td><td>OAuth 2.0</td><td>Delegated authorization via GitHub</td></tr>
+            <tr><td>Session</td><td>HTTPOnly Cookies</td><td>Prevent XSS attacks on tokens</td></tr>
+            <tr><td>CORS</td><td>Origin Whitelist</td><td>Prevent cross-site request forgery</td></tr>
+            <tr><td>Cookie</td><td>SameSite: lax</td><td>Additional CSRF protection</td></tr>
+            <tr><td>Secrets</td><td>Environment Variables</td><td>Never commit credentials to code</td></tr>
+            <tr><td>Token</td><td>Server-side only</td><td>Access token never sent to client</td></tr>
+            <tr><td>Scopes</td><td>Minimal GitHub scopes</td><td>Principle of least privilege</td></tr>
+        </tbody>
+    </table>
+
+    <!-- ===================== 9. PERFORMANCE ===================== -->
+    <h2><span class="section-number">9</span> Performance Optimization</h2>
+
+    <div class="feature-grid">
+        <div class="feature-item">
+            <h5>⚡ Parallel API Calls</h5>
+            <p><code>Promise.all</code> for 4 concurrent GitHub API requests — 4× faster than sequential.</p>
+        </div>
+        <div class="feature-item">
+            <h5>🗄️ Intelligent Caching</h5>
+            <p>In-memory Map cache with 5-min TTL. ~50ms response (cached) vs. 2–5s (fresh).</p>
+        </div>
+        <div class="feature-item">
+            <h5>📦 Code Splitting</h5>
+            <p>Vite automatic chunk splitting — separate bundles for Dashboard, Landing, vendors.</p>
+        </div>
+        <div class="feature-item">
+            <h5>🌳 Tree Shaking</h5>
+            <p>Removes unused code at build time, minimizing bundle size.</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Metric</th>
+                <th>Target</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Cache Hit Response</td><td>~50ms</td></tr>
+            <tr><td>Fresh Data Response</td><td>2–5 seconds</td></tr>
+            <tr><td>Build Time</td><td>~5 seconds</td></tr>
+            <tr><td>First Load Time</td><td>&lt; 2 seconds</td></tr>
+            <tr><td>Lighthouse Score</td><td>95+ (target)</td></tr>
+            <tr><td>Cache Hit Ratio</td><td>~80% (estimated)</td></tr>
+        </tbody>
+    </table>
+
+    <!-- ===================== 10. DEPLOYMENT & FUTURE ===================== -->
+    <div class="page-break"></div>
+    <h2><span class="section-number">10</span> Deployment & Future Scope</h2>
+
+    <h3>10.1 Development Setup</h3>
+    <div class="card" style="font-family: monospace; font-size: 0.9em; line-height: 2;">
+        <strong># Prerequisites</strong><br>
+        Node.js 18+ &nbsp;|&nbsp; npm 9+ &nbsp;|&nbsp; GitHub OAuth App credentials<br><br>
+        <strong># Setup</strong><br>
+        1. Clone repository<br>
+        2. Create .env.local (GITHUB_ID, GITHUB_SECRET, SESSION_SECRET)<br>
+        3. npm install<br>
+        4. npm run dev (starts both Vite + Express concurrently)
+    </div>
+
+    <h3>10.2 Recommended Deployment Platforms</h3>
+    <div class="feature-grid">
+        <div class="feature-item">
+            <h5>Vercel</h5>
+            <p>Frontend + Serverless Functions</p>
+        </div>
+        <div class="feature-item">
+            <h5>Railway</h5>
+            <p>Full-stack container deployment</p>
+        </div>
+        <div class="feature-item">
+            <h5>Heroku</h5>
+            <p>Full-stack with easy scaling</p>
+        </div>
+        <div class="feature-item">
+            <h5>DigitalOcean</h5>
+            <p>VPS deployment for full control</p>
+        </div>
+    </div>
+
+    <h3>10.3 Future Enhancements</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Feature</th>
+                <th>Category</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Team Dashboard (multi-user analytics)</td><td><span class="badge badge-primary">Feature</span></td></tr>
+            <tr><td>Exportable Reports (PDF, CSV)</td><td><span class="badge badge-primary">Feature</span></td></tr>
+            <tr><td>Custom Date Ranges</td><td><span class="badge badge-primary">Feature</span></td></tr>
+            <tr><td>Goal Tracking & Milestones</td><td><span class="badge badge-primary">Feature</span></td></tr>
+            <tr><td>AI-Powered Insights (OpenAI API)</td><td><span class="badge badge-warning">AI</span></td></tr>
+            <tr><td>GitLab / Bitbucket Integration</td><td><span class="badge badge-accent">Integration</span></td></tr>
+            <tr><td>Mobile Native App (React Native)</td><td><span class="badge badge-accent">Platform</span></td></tr>
+            <tr><td>PostgreSQL for persistent sessions</td><td><span class="badge badge-success">Technical</span></td></tr>
+            <tr><td>Redis for distributed caching</td><td><span class="badge badge-success">Technical</span></td></tr>
+            <tr><td>Docker + Kubernetes</td><td><span class="badge badge-success">Technical</span></td></tr>
+            <tr><td>CI/CD pipeline (GitHub Actions)</td><td><span class="badge badge-success">Technical</span></td></tr>
+        </tbody>
+    </table>
+
+    <!-- ===================== FOOTER ===================== -->
+    <div class="footer">
+        <p><strong>DevMetrics</strong> — GitHub Analytics Dashboard &bull; Version 0.1.0</p>
+        <p>Document generated February 28, 2026</p>
+    </div>
+
+</body>
+</html>
