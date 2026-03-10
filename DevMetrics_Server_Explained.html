@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevMetrics – Server-Side Architecture Explained</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+    :root {
+      --primary: #6366f1;
+      --primary-light: #818cf8;
+      --bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --code-bg: #f8fafc;
+      --accent-green: #22c55e;
+      --accent-orange: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-blue: #3b82f6;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.7;
+      padding: 48px 60px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    @media print {
+      body { padding: 20px 40px; font-size: 11pt; }
+      .page-break { page-break-before: always; }
+      h2 { page-break-after: avoid; }
+      table, .card { page-break-inside: avoid; }
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      padding-bottom: 32px;
+      border-bottom: 3px solid var(--primary);
+      margin-bottom: 40px;
+    }
+    .header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+    }
+    .header .subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    .header .date {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ── Section Headings ── */
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 36px 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--border);
+    }
+    h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 24px 0 10px;
+    }
+    h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin: 16px 0 8px;
+    }
+
+    p { margin: 8px 0; }
+
+    /* ── Code blocks ── */
+    code {
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 16px 20px;
+      overflow-x: auto;
+      margin: 12px 0;
+      font-family: 'Fira Code', monospace;
+      font-size: 12.5px;
+      line-height: 1.6;
+    }
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: inherit;
+    }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+    th {
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      text-align: left;
+      padding: 10px 14px;
+    }
+    th:first-child { border-radius: 6px 0 0 0; }
+    th:last-child { border-radius: 0 6px 0 0; }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    tr:nth-child(even) td { background: #f8fafc; }
+
+    /* ── Cards ── */
+    .card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--primary);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 14px 0;
+    }
+    .card.green { border-left-color: var(--accent-green); }
+    .card.orange { border-left-color: var(--accent-orange); }
+    .card.red { border-left-color: var(--accent-red); }
+    .card.blue { border-left-color: var(--accent-blue); }
+
+    .card .card-title {
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    /* ── Lists ── */
+    ul, ol { margin: 8px 0 8px 24px; }
+    li { margin: 4px 0; }
+
+    /* ── Flow diagram ── */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 14px 0;
+    }
+    .flow-step {
+      background: var(--primary);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .flow-arrow {
+      color: var(--text-muted);
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-purple { background: #ede9fe; color: #7c3aed; }
+    .badge-green { background: #dcfce7; color: #16a34a; }
+    .badge-blue { background: #dbeafe; color: #2563eb; }
+    .badge-orange { background: #fef3c7; color: #d97706; }
+
+    /* ── Architecture box ── */
+    .arch-box {
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 16px 0;
+      background: linear-gradient(135deg, #fafafe 0%, #f0f0ff 100%);
+    }
+    .arch-box .layer {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0;
+    }
+    .arch-box .layer-label {
+      background: var(--primary);
+      color: white;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      min-width: 130px;
+      text-align: center;
+    }
+    .arch-box .layer-desc {
+      font-size: 14px;
+      color: var(--text);
+    }
+    .arch-divider {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 18px;
+      margin: 4px 0;
+    }
+
+    .toc { margin: 0 0 32px; }
+    .toc a {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 15px;
+    }
+    .toc a:hover { text-decoration: underline; }
+    .toc li { margin: 6px 0; }
+
+    .footer {
+      margin-top: 48px;
+      padding-top: 16px;
+      border-top: 2px solid var(--border);
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════ HEADER ═══════════════════ -->
+  <div class="header">
+    <h1>DevMetrics — Server-Side Architecture</h1>
+    <div class="subtitle">Complete Explanation of the Backend System</div>
+    <div class="date">Generated: March 7, 2026</div>
+  </div>
+
+  <!-- ═══════════════════ TABLE OF CONTENTS ═══════════════════ -->
+  <div class="toc">
+    <h3>Table of Contents</h3>
+    <ol>
+      <li><a href="#overview">High-Level Overview</a></li>
+      <li><a href="#entry">Server Entry Point — <code>server/index.js</code></a></li>
+      <li><a href="#auth">Authentication Routes — <code>server/routes/auth.js</code></a></li>
+      <li><a href="#github">GitHub Stats Route — <code>server/routes/github.js</code></a></li>
+      <li><a href="#cache">Caching System</a></li>
+      <li><a href="#fetching">Data Fetching Strategy</a></li>
+      <li><a href="#metrics">Computed Metrics Deep Dive</a></li>
+      <li><a href="#response">Final Response Structure</a></li>
+      <li><a href="#files">File Structure Summary</a></li>
+    </ol>
+  </div>
+
+  <!-- ═══════════════════ 1. OVERVIEW ═══════════════════ -->
+  <h2 id="overview">1. High-Level Overview</h2>
+  <p>
+    The DevMetrics server is an <strong>Express.js</strong> backend that acts as a secure proxy between the React frontend
+    and the <strong>GitHub API</strong>. It handles OAuth authentication, fetches developer data from multiple GitHub endpoints,
+    computes advanced analytics metrics, and returns an aggregated JSON response to the dashboard.
+  </p>
+
+  <div class="arch-box">
+    <div class="layer">
+      <span class="layer-label">Frontend</span>
+      <span class="layer-desc">React + Vite SPA → sends requests to /auth/* and /api/github/*</span>
+    </div>
+    <div class="arch-divider">↕</div>
+    <div class="layer">
+      <span class="layer-label">Express Server</span>
+      <span class="layer-desc">Session management, CORS, routing, caching</span>
+    </div>
+    <div class="arch-divider">↕</div>
+    <div class="layer">
+      <span class="layer-label">GitHub APIs</span>
+      <span class="layer-desc">REST API v3 + GraphQL v4 + Search API</span>
+    </div>
+  </div>
+
+  <h3>Technologies Used</h3>
+  <table>
+    <tr><th>Technology</th><th>Purpose</th></tr>
+    <tr><td>Express.js</td><td>HTTP server and routing framework</td></tr>
+    <tr><td>express-session</td><td>Cookie-based session management (stores access tokens server-side)</td></tr>
+    <tr><td>cors</td><td>Cross-Origin Resource Sharing for frontend communication</td></tr>
+    <tr><td>dotenv</td><td>Environment variable loading from <code>.env.local</code></td></tr>
+    <tr><td>Node.js Fetch API</td><td>HTTP client for GitHub API calls</td></tr>
+  </table>
+
+  <!-- ═══════════════════ 2. ENTRY POINT ═══════════════════ -->
+  <h2 id="entry">2. Server Entry Point — <code>server/index.js</code></h2>
+
+  <p>This file bootstraps the entire server application. Here's what each section does:</p>
+
+  <h3>2.1 Environment & Imports</h3>
+  <pre><code>import { config } from 'dotenv'
+config({ path: '.env.local' })</code></pre>
+  <p>Loads secrets (GitHub OAuth client ID/secret, session secret, port, frontend URL) from <code>.env.local</code>.</p>
+
+  <h3>2.2 Middleware Stack</h3>
+  <table>
+    <tr><th>Middleware</th><th>What It Does</th></tr>
+    <tr><td><code>express.json()</code></td><td>Parses incoming JSON request bodies</td></tr>
+    <tr><td><code>cors({ origin, credentials })</code></td><td>Allows the frontend to send cookies cross-origin</td></tr>
+    <tr>
+      <td><code>session({...})</code></td>
+      <td>
+        Creates a server-side session per user.<br>
+        • <strong>httpOnly:</strong> Cookie not accessible via JavaScript (XSS protection)<br>
+        • <strong>secure:</strong> HTTPS-only in production<br>
+        • <strong>sameSite: 'lax':</strong> CSRF protection<br>
+        • <strong>maxAge:</strong> 7 days
+      </td>
+    </tr>
+  </table>
+
+  <h3>2.3 Route Mounting</h3>
+  <pre><code>app.use('/auth', authRouter)       // OAuth login/logout/session
+app.use('/api/github', githubRouter) // Developer stats API</code></pre>
+
+  <h3>2.4 Production Static Serving</h3>
+  <p>In production (<code>NODE_ENV === 'production'</code>), the server serves the Vite-built frontend from the <code>dist/</code> directory and uses a catch-all route for client-side routing (SPA).</p>
+
+  <!-- ═══════════════════ 3. AUTH ROUTES ═══════════════════ -->
+  <h2 id="auth" class="page-break">3. Authentication Routes — <code>server/routes/auth.js</code></h2>
+
+  <p>Implements the <strong>GitHub OAuth 2.0 Authorization Code Flow</strong>:</p>
+
+  <div class="flow">
+    <span class="flow-step">User clicks Sign In</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">GET /auth/github</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Redirect to GitHub</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">User authorizes</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">GitHub callback with code</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Exchange for token</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Store in session</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Redirect to dashboard</span>
+  </div>
+
+  <h3>3.1 All Endpoints</h3>
+  <table>
+    <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+    <tr>
+      <td><span class="badge badge-green">GET</span></td>
+      <td><code>/auth/github</code></td>
+      <td>Redirects user to GitHub's OAuth page. Requests scopes: <strong>read:user</strong>, <strong>user:email</strong>, <strong>repo</strong> (includes private repos)</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-green">GET</span></td>
+      <td><code>/auth/github/callback</code></td>
+      <td>
+        Receives the authorization <code>code</code> from GitHub.<br>
+        1. Exchanges <code>code</code> for an <strong>access token</strong><br>
+        2. Fetches the user's GitHub profile<br>
+        3. Stores token + user in the server-side <strong>session</strong><br>
+        4. Redirects to <code>/dashboard</code>
+      </td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-green">GET</span></td>
+      <td><code>/auth/me</code></td>
+      <td>Returns the logged-in user's profile from the session, or <strong>401</strong> if not authenticated</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-orange">POST</span></td>
+      <td><code>/auth/logout</code></td>
+      <td>Destroys the session and clears the <code>connect.sid</code> cookie</td>
+    </tr>
+  </table>
+
+  <h3>3.2 User Data Stored in Session</h3>
+  <pre><code>req.session.user = {
+  login,      // GitHub username
+  name,       // Display name
+  avatarUrl,  // Profile picture URL
+  bio,        // User bio
+  publicRepos,// Public repo count
+  followers,  // Follower count
+  following,  // Following count
+  createdAt,  // Account creation date
+  htmlUrl,    // GitHub profile link
+}</code></pre>
+
+  <div class="card green">
+    <div class="card-title">🔒 Security Note</div>
+    <p>The access token is <strong>never sent to the frontend</strong>. It stays server-side in the session store. The frontend only receives the user profile data via <code>/auth/me</code>.</p>
+  </div>
+
+  <!-- ═══════════════════ 4. GITHUB STATS ═══════════════════ -->
+  <h2 id="github" class="page-break">4. GitHub Stats Route — <code>server/routes/github.js</code></h2>
+
+  <p>
+    This is the <strong>core of the application</strong> — a single <code>GET /api/github/stats</code> endpoint
+    that aggregates data from 8+ GitHub API calls and computes rich developer analytics.
+  </p>
+
+  <div class="card blue">
+    <div class="card-title">Endpoint Summary</div>
+    <p><code>GET /api/github/stats</code> — Requires an authenticated session. Returns a comprehensive JSON payload with user profile, repository stats, activity data, and computed impact metrics.</p>
+    <p>Optional query param: <code>?nocache=1</code> to bypass cache.</p>
+  </div>
+
+  <!-- ═══════════════════ 5. CACHING ═══════════════════ -->
+  <h2 id="cache">5. Caching System</h2>
+
+  <p>To solve the "slow loading" problem caused by many GitHub API calls, the server uses an <strong>in-memory cache</strong>:</p>
+
+  <table>
+    <tr><th>Property</th><th>Value</th></tr>
+    <tr><td>Storage</td><td>JavaScript <code>Map</code> (in-memory, per-process)</td></tr>
+    <tr><td>Cache Key</td><td>GitHub username</td></tr>
+    <tr><td>TTL (Time To Live)</td><td><strong>5 minutes</strong></td></tr>
+    <tr><td>Stale Cleanup</td><td>Entries older than 30 minutes are purged on each write</td></tr>
+    <tr><td>Bypass</td><td>Add <code>?nocache=1</code> query parameter</td></tr>
+    <tr><td>Debug Endpoint</td><td><code>GET /api/github/clear-cache</code></td></tr>
+    <tr><td>Cache Header</td><td><code>X-Cache: HIT</code> or <code>X-Cache: MISS</code></td></tr>
+  </table>
+
+  <div class="card orange">
+    <div class="card-title">⚠️ Limitation</div>
+    <p>Since the cache is in-memory, it is <strong>lost on server restart</strong> and is <strong>not shared</strong> across multiple server instances. This is fine for single-instance deployments.</p>
+  </div>
+
+  <!-- ═══════════════════ 6. DATA FETCHING ═══════════════════ -->
+  <h2 id="fetching" class="page-break">6. Data Fetching Strategy</h2>
+
+  <p>The stats endpoint fires <strong>8 API calls in parallel</strong> using <code>Promise.all</code> to minimize latency:</p>
+
+  <table>
+    <tr><th>#</th><th>API Call</th><th>What It Fetches</th></tr>
+    <tr>
+      <td>1</td>
+      <td><code>GET /user/repos</code></td>
+      <td>All repos (owned + collaborator + org member), up to 100, sorted by last update. Includes private repos.</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><code>GET /users/{login}/events</code></td>
+      <td>Last 100 public events (pushes, PRs, issues, reviews, etc.)</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><code>GET /search/commits</code></td>
+      <td>User's 100 most recent commits (via Search API)</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><code>POST /graphql</code></td>
+      <td>Contribution calendar (the green squares) — 52 weeks of daily contribution counts</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><code>GET /search/issues</code></td>
+      <td>PRs reviewed by the user (not authored)</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td><code>GET /search/issues</code></td>
+      <td>Issues the user commented on (not authored)</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td><code>GET /search/issues</code></td>
+      <td>PRs authored by the user (total count)</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td><code>GET /search/issues</code></td>
+      <td>PR review comments on others' PRs</td>
+    </tr>
+  </table>
+
+  <h3>6.1 Contribution Calendar Fallback</h3>
+  <p>If the GraphQL query fails (e.g., token doesn't have the right scope), the server builds a <strong>fallback contribution calendar</strong> from the events and search commits data — constructing 52 weeks of daily counts manually.</p>
+
+  <h3>6.2 Individual Commit Detail Fetch</h3>
+  <div class="card">
+    <div class="card-title">Why fetch commits individually?</div>
+    <p>The <code>/search/commits</code> endpoint does <strong>not</strong> return line-level stats (additions/deletions). To calculate code churn, quality, and complexity, the server fetches <strong>up to 30 commits individually</strong> via their API URLs using <code>Promise.allSettled</code> (so one failure doesn't break the rest).</p>
+  </div>
+
+  <!-- ═══════════════════ 7. METRICS ═══════════════════ -->
+  <h2 id="metrics" class="page-break">7. Computed Metrics Deep Dive</h2>
+
+  <h3>7.1 Code Churn Analysis</h3>
+  <p>Measures the rate of code being written vs. deleted over time.</p>
+  <table>
+    <tr><th>Metric</th><th>Formula / Description</th></tr>
+    <tr><td>Total Additions</td><td>Sum of all lines added across analyzed commits</td></tr>
+    <tr><td>Total Deletions</td><td>Sum of all lines removed across analyzed commits</td></tr>
+    <tr><td>Net Code Change</td><td><code>additions - deletions</code></td></tr>
+    <tr><td>Churn Rate</td><td><code>(deletions / additions) × 100%</code> — lower means more code retained</td></tr>
+    <tr><td>Code Retention</td><td><code>(netChange / additions) × 100%</code> — how much code survives</td></tr>
+    <tr><td>Avg Lines/Commit</td><td><code>(additions + deletions) / commitCount</code></td></tr>
+    <tr><td>Timeline</td><td>Daily breakdown of additions, deletions, and net change (last 14 entries)</td></tr>
+  </table>
+
+  <h3>7.2 Commit Quality Scoring</h3>
+  <p>Each commit is scored <strong>0–100</strong> based on multiple factors:</p>
+
+  <table>
+    <tr><th>Factor</th><th>Score Impact</th></tr>
+    <tr><td><strong>Commit Size (Goldilocks Zone)</strong></td><td>
+      • 0 lines (empty): <span style="color:var(--accent-red)">−30</span><br>
+      • &lt;5 lines (trivial): <span style="color:var(--accent-red)">−15</span><br>
+      • 20–500 lines (ideal): <span style="color:var(--accent-green)">+25</span><br>
+      • &gt;1000 lines (bulk): <span style="color:var(--accent-green)">+10</span>
+    </td></tr>
+    <tr><td><strong>Message Quality</strong></td><td>
+      • &lt;10 chars (lazy): <span style="color:var(--accent-red)">−10</span><br>
+      • 30–100 chars (descriptive): <span style="color:var(--accent-green)">+15</span>
+    </td></tr>
+    <tr><td><strong>AI-Pattern Detection</strong></td><td>Keywords like "copilot", "auto-generated" + &lt;10 lines: <span style="color:var(--accent-red)">−20</span></td></tr>
+    <tr><td><strong>Problem-Solving Keywords</strong></td><td>"refactor", "optimize", "implement", etc. + ≥10 lines: <span style="color:var(--accent-green)">+20</span></td></tr>
+    <tr><td><strong>Add/Delete Balance</strong></td><td>Balanced changes (ratio &gt;0.3) + ≥50 lines: <span style="color:var(--accent-green)">+10</span></td></tr>
+  </table>
+
+  <h4>Quality Grades</h4>
+  <div style="display: flex; gap: 12px; margin: 8px 0; flex-wrap: wrap;">
+    <span class="badge badge-green">≥75 → Excellent</span>
+    <span class="badge badge-blue">≥60 → Good</span>
+    <span class="badge badge-orange">≥45 → Fair</span>
+    <span class="badge badge-purple">Below → Needs Improvement</span>
+  </div>
+
+  <h3 class="page-break">7.3 Authenticity Score (Anti-AI Noise)</h3>
+  <p>Starts at <strong>100</strong> and adjusts based on signals:</p>
+  <table>
+    <tr><th>Signal</th><th>Effect</th></tr>
+    <tr><td>High trivial commit ratio</td><td><span style="color:var(--accent-red)">−40 × trivialRatio</span></td></tr>
+    <tr><td>High suspicious commit ratio</td><td><span style="color:var(--accent-red)">−30 × suspiciousRatio</span></td></tr>
+    <tr><td>Quality score ≥ 70</td><td><span style="color:var(--accent-green)">+10</span></td></tr>
+    <tr><td>Quality score ≥ 55</td><td><span style="color:var(--accent-green)">+5</span></td></tr>
+    <tr><td>&gt;50% commits have good messages (≥30 chars)</td><td><span style="color:var(--accent-green)">+5</span></td></tr>
+    <tr><td>Balanced add/delete ratio (&gt;0.2)</td><td><span style="color:var(--accent-green)">+5</span></td></tr>
+    <tr><td>Meaningful commit ratio ≥ 80%</td><td><span style="color:var(--accent-green)">+5</span></td></tr>
+  </table>
+
+  <h4>Authenticity Grades</h4>
+  <div style="display: flex; gap: 12px; margin: 8px 0; flex-wrap: wrap;">
+    <span class="badge badge-green">≥85 → Verified</span>
+    <span class="badge badge-blue">≥70 → Likely Authentic</span>
+    <span class="badge badge-orange">≥50 → Mixed Signals</span>
+    <span class="badge badge-purple">Below → Review Needed</span>
+  </div>
+
+  <h3>7.4 Collaboration Score</h3>
+  <p>A weighted composite of community participation:</p>
+  <pre><code>collaborationScore = (prReviewCount × 1)
+                   + (prCommentCount × 0.5)
+                   + (issueCommentCount × 0.3)
+                   + (prAuthoredCount × 0.2)</code></pre>
+
+  <h3>7.5 Review Depth</h3>
+  <table>
+    <tr><th>Metric</th><th>Description</th></tr>
+    <tr><td>Total Reviews</td><td>Number of PRs reviewed (all-time, via Search API)</td></tr>
+    <tr><td>Review Comments</td><td>Higher of Search API count or event-based count</td></tr>
+    <tr><td>Issues Helped</td><td>Issues commented on (excluding self-authored)</td></tr>
+    <tr><td>Avg Reviews/Week</td><td><code>totalReviewActivity / min(accountAgeWeeks, 52)</code></td></tr>
+    <tr><td>Helpfulness Score</td><td><code>(reviews × 3) + (prComments × 2) + (issueComments × 1.5) + (recentEvents × 0.5)</code></td></tr>
+  </table>
+
+  <h3>7.6 Complexity Trends</h3>
+  <p>For each day with commits, tracks:</p>
+  <ul>
+    <li><strong>Avg lines changed</strong> per commit</li>
+    <li><strong>Number of files</strong> touched</li>
+    <li><strong>Complexity level:</strong> High (&gt;300 lines), Medium (100–300), Low (&lt;100)</li>
+  </ul>
+  <p>Returns the last 14 data points for trend visualization.</p>
+
+  <h3>7.7 Private Work Summary</h3>
+  <p>Aggregates statistics specifically for private repositories:</p>
+  <ul>
+    <li>Total private vs. public repo count and percentage</li>
+    <li>Stars and forks on private repos</li>
+    <li>Top 5 languages used in private repos</li>
+    <li>3 most recently active private repos</li>
+    <li>Total size of private repos</li>
+  </ul>
+
+  <h3 class="page-break">7.8 Impact Score (The Big Number)</h3>
+  <p>A composite <strong>0–100</strong> score representing overall developer impact:</p>
+
+  <table>
+    <tr><th>Component</th><th>Weight</th><th>Normalization</th></tr>
+    <tr><td>Commit Quality</td><td><strong>30%</strong></td><td>Raw quality score (0–100)</td></tr>
+    <tr><td>Code Retention</td><td><strong>20%</strong></td><td>Retention percentage (0–100)</td></tr>
+    <tr><td>Collaboration</td><td><strong>20%</strong></td><td><code>min((collaborationScore / 30) × 100, 100)</code></td></tr>
+    <tr><td>Authenticity</td><td><strong>15%</strong></td><td>Raw authenticity score (0–100)</td></tr>
+    <tr><td>Consistency</td><td><strong>15%</strong></td><td><code>min((activeDays / totalDays) × 200, 100)</code></td></tr>
+  </table>
+
+  <pre><code>impactScore = (quality × 0.30) + (retention × 0.20)
+            + (collaboration × 0.20) + (authenticity × 0.15)
+            + (consistency × 0.15)</code></pre>
+
+  <!-- ═══════════════════ 8. RESPONSE ═══════════════════ -->
+  <h2 id="response">8. Final Response Structure</h2>
+
+  <p>The <code>/api/github/stats</code> endpoint returns this JSON structure:</p>
+
+  <pre><code>{
+  user: {                    // GitHub profile
+    login, name, avatarUrl, bio, publicRepos,
+    followers, following, createdAt, htmlUrl
+  },
+  stats: {                   // Repository aggregates
+    totalStars, totalForks, forkedRepos, totalRepos,
+    publicRepos, privateRepos, totalWatchers,
+    totalOpenIssues, topLanguages
+  },
+  recentRepos: [...],        // 6 most recently updated repos
+  activityTimeline: [...],   // Last 14 days of event counts
+  contributionCalendar: {    // Green squares grid
+    totalContributions,
+    weeks: [{ contributionDays: [...] }]
+  },
+  eventTypes: [...],         // Top 6 event types by count
+  impactMetrics: {
+    codeChurn: {...},        // Additions, deletions, churn rate, timeline
+    collaboration: {...},    // Reviews, comments, PRs authored
+    quality: {...},          // Score, grade, patterns, distribution
+    authenticity: {...},     // Score, grade, signals
+    reviewDepth: {...},      // Reviews, helpfulness, avg/week
+    complexityTrends: [...], // Daily complexity data points
+    privateWork: {...},      // Private repo summary
+    impactScore: 0-100       // The overall number
+  },
+  _cache: {                  // Cache metadata
+    hit: boolean, cachedAt, ttl, age
+  }
+}</code></pre>
+
+  <!-- ═══════════════════ 9. FILE STRUCTURE ═══════════════════ -->
+  <h2 id="files" class="page-break">9. File Structure Summary</h2>
+
+  <table>
+    <tr><th>File</th><th>Lines</th><th>Responsibility</th></tr>
+    <tr>
+      <td><code>server/index.js</code></td>
+      <td>~35</td>
+      <td>Express app setup, middleware, route mounting, static file serving</td>
+    </tr>
+    <tr>
+      <td><code>server/routes/auth.js</code></td>
+      <td>~65</td>
+      <td>GitHub OAuth flow (login, callback, session, logout)</td>
+    </tr>
+    <tr>
+      <td><code>server/routes/github.js</code></td>
+      <td>~680</td>
+      <td>Stats API: caching, data fetching, metric computation, response assembly</td>
+    </tr>
+  </table>
+
+  <div class="card green" style="margin-top: 24px;">
+    <div class="card-title">Summary</div>
+    <p>The server is a <strong>stateful Express.js backend</strong> that authenticates users via GitHub OAuth, maintains sessions with access tokens, and provides a single rich API endpoint (<code>/api/github/stats</code>) that aggregates data from 8+ parallel GitHub API calls. It computes 8 distinct analytics metrics — including code churn, commit quality, authenticity scoring, collaboration depth, and an overall impact score — cached for 5 minutes to optimize performance.</p>
+  </div>
+
+  <div class="footer">
+    DevMetrics — Server Architecture Documentation &bull; March 2026
+  </div>
+
+</body>
+</html>
