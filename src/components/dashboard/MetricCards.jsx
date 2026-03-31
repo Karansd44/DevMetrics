@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   GitPullRequest, TrendingDown, Code2, Award,
 } from 'lucide-react'

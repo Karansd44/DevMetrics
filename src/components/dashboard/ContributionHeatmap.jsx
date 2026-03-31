@@ -1,3 +1,4 @@
+import React from 'react'
 import { PURPLE } from './constants'
 
 export default function ContributionHeatmap({ heatmapWeeks, totalContributions }) {

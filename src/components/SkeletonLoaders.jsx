@@ -1,3 +1,5 @@
+import React from 'react'
+
 /* ── Skeleton building blocks ── */
 function Bone({ w, h, r = '6px', mb, mt, mx }) {
   return (

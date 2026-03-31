@@ -1,3 +1,4 @@
+import React from 'react'
 import { Lock, Globe, Code2, HardDrive, GitFork } from 'lucide-react'
 
 function PrivateStatRow({ icon, label, value, color, bg }) {

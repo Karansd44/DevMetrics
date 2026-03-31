@@ -1,3 +1,4 @@
+import React from 'react'
 import { GitPullRequest, MessageCircle, Eye, Heart, Clock } from 'lucide-react'
 import { PURPLE } from './constants'
 

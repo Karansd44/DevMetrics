@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext.jsx'
+import React from 'react'
 import LandingPage from './pages/LandingPage.jsx'
 import SignInPage from './pages/SignInPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'

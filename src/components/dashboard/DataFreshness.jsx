@@ -1,3 +1,4 @@
+import React from 'react'
 import { RefreshCw, CheckCircle, Clock, Zap, Database } from 'lucide-react'
 
 export default function DataFreshness({ cacheInfo, onRefresh }) {

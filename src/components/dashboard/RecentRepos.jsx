@@ -1,3 +1,4 @@
+import React from 'react'
 import { Star, Lock, Code2, ArrowUpRight } from 'lucide-react'
 
 export default function RecentRepos({ recentRepos }) {

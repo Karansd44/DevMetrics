@@ -1,3 +1,4 @@
+import React from 'react'
 import { Share2 } from 'lucide-react'
 
 /* ── DevScore Gauge — cyan → indigo gradient ring ── */

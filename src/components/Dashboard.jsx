@@ -19,6 +19,7 @@ import PrivateContributions from './dashboard/PrivateContributions.jsx'
 import DataFreshness from './dashboard/DataFreshness.jsx'
 import ReviewDepth from './dashboard/ReviewDepth.jsx'
 import ComplexityTrends from './dashboard/ComplexityTrends.jsx'
+import AIIntegrityCard from './dashboard/AIIntegrityCard.jsx'
 
 import { DashboardSkeleton } from './SkeletonLoaders.jsx'
 
@@ -151,6 +152,38 @@ export default function Dashboard() {
           <AuthenticityScore authenticity={authenticity} />
           <CodeChurnChart churn={churn} />
           <CommitQuality quality={quality} />
+
+          {/* Row 5.5: AI Integrity (4) */}
+          <AIIntegrityCard
+            aiMetrics={{
+              currentScore: 35,
+              trend: [
+                { date: '7d', score: 38 },
+                { date: '5d', score: 36 },
+                { date: '3d', score: 34 },
+                { date: '1d', score: 35 },
+              ],
+              suspiciousIndicators: [
+                {
+                  label: 'Comment Density',
+                  description: 'Slightly high ratio of comments to code (28%)',
+                  severity: 'low',
+                },
+                {
+                  label: 'Naming Consistency',
+                  description: 'High adherence to conventions (18 out of 20 checks)',
+                  severity: 'low',
+                },
+                {
+                  label: 'Defensive Patterns',
+                  description: 'Moderate null-checking overhead detected',
+                  severity: 'low',
+                },
+              ],
+              classification: 'Minimal AI Assistance',
+              lastAnalyzed: new Date().toLocaleDateString(),
+            }}
+          />
 
           {/* Row 6: Review Depth | Complexity | Private Work (4-4-4) */}
           <ReviewDepth reviewDepth={reviewDepth} collab={collab} />

@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   Star, Code2, Lock, GitFork, Eye, AlertCircle,
 } from 'lucide-react'

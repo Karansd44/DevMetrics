@@ -1,3 +1,4 @@
+import React from 'react'
 import { Zap, AlertCircle, TrendingUp } from 'lucide-react'
 import { PURPLE } from './constants'
 

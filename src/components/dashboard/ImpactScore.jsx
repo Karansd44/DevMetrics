@@ -1,3 +1,4 @@
+import React from 'react'
 import { Shield, TrendingUp, Zap, Target } from 'lucide-react'
 
 /* ── Impact Score Ring — gradient ring showing real impact ── */

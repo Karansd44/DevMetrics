@@ -1,3 +1,4 @@
+import React from 'react'
 import { CheckCircle, AlertCircle, ShieldAlert } from 'lucide-react'
 
 function ScoreRing({ score, size = 100 }) {

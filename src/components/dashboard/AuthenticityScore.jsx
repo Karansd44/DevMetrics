@@ -1,3 +1,4 @@
+import React from 'react'
 import { ShieldCheck, ShieldAlert, AlertTriangle, CheckCircle, MessageSquare, FileCode } from 'lucide-react'
 
 function SignalRow({ icon, label, value, status }) {

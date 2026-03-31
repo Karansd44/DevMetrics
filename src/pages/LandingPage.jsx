@@ -1,3 +1,4 @@
+import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   BarChart3, Code2, ArrowRight, Github, Globe,

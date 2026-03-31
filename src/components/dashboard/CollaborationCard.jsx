@@ -1,3 +1,4 @@
+import React from 'react'
 import { PURPLE } from './constants'
 
 function CollabBar({ label, value, max, color }) {
